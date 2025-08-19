@@ -18,8 +18,15 @@ import { AppContext } from "../../Context/ContextApi";
 const RecuriterDashBoard = () => {
   const { data, url, totalApplications } = useContext(AppContext);
   const [scholarData, setScholarData] = useState([]);
-  const recruiterId = localStorage.getItem("recruiterId");
+  const [recruiterId, setRecruiterId] = useState("");
+  const [recruiterName, setRecruiterName] = useState("");
   
+  // Get data from localStorage only on client side
+  useEffect(() => {
+    setRecruiterId(localStorage.getItem("recruiterId") || "");
+    setRecruiterName(localStorage.getItem("nameR") || "");
+  }, []);
+
   const handleDelete = async (id) => {
     try {
       const response = await axios.delete(
@@ -27,11 +34,13 @@ const RecuriterDashBoard = () => {
       );
       if (response.data.success) {
         toast.success("Scholarship deleted successfully");
+        // Refresh the data after deletion
+        getingSingleData();
       } else {
         toast.error(response.data.message);
       }
     } catch (error) {
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || "Error deleting scholarship");
     }
   };
 
@@ -44,18 +53,22 @@ const RecuriterDashBoard = () => {
       );
       if (response.data.success) {
         Cookies.remove("tokenR");
-        toast.success(response.data.message);
         localStorage.removeItem("nameR");
         localStorage.removeItem("emailR");
         localStorage.removeItem("recruiterId");
+        toast.success(response.data.message);
+        // Redirect to home page after logout
+        window.location.href = "/";
       }
     } catch (error) {
-      error("Err in Logout ", error);
-      toast.error(error.response.data.message);
+      console.error("Error in Logout ", error);
+      toast.error(error.response?.data?.message || "Error during logout");
     }
   };
 
   const getingSingleData = async () => {
+    if (!recruiterId) return;
+    
     try {
       const response = await axios.get(
         `${url}/api/scholarship/get-single-scholar-info/${recruiterId.trim()}`,
@@ -65,19 +78,21 @@ const RecuriterDashBoard = () => {
         setScholarData(response.data.data);
       }
     } catch (error) {
-      console.error("Err in getting Data", error);
-      toast.error(error.response.data.message);
+      console.error("Error in getting Data", error);
+      toast.error(error.response?.data?.message || "Error fetching data");
     }
   };
 
   useEffect(() => {
-    getingSingleData();
-  }, []);
+    if (recruiterId) {
+      getingSingleData();
+    }
+  }, [recruiterId]);
 
   const stats = [
     {
       title: "Total Scholarships",
-      value: totalApplications,
+      value: scholarData.length,
       icon: <Award size={20} className="text-[#B9FF66]" />,
       change: "+5 this month",
       bg: "bg-[#B9FF66]/10",
@@ -189,21 +204,20 @@ const RecuriterDashBoard = () => {
             <div className="flex items-center space-x-4">
               <div className="flex items-center">
                 <div className="h-8 w-8 rounded-full bg-[#B9FF66] flex items-center justify-center text-gray-800 font-medium">
-                  {localStorage.getItem("nameR")?.charAt(0).toUpperCase() || ""}
-                  {localStorage.getItem("nameR")?.charAt(1).toUpperCase() || ""}
+                  {recruiterName?.charAt(0).toUpperCase() || ""}
+                  {recruiterName?.charAt(1).toUpperCase() || ""}
                 </div>
                 <div className="relative group inline-block">
                   <ChevronDown
                     size={16}
                     className="ml-1 text-gray-500 md:inline cursor-pointer"
                   />
-                  <Link
-                    href={"/"}
+                  <button
                     onClick={() => logoutRecuriter()}
                     className="absolute top-7 right-0 hidden group-hover:block bg-gray-200 p-2 rounded-lg shadow hover:bg-gray-300 transition"
                   >
                     Logout
-                  </Link>
+                  </button>
                 </div>
               </div>
             </div>
@@ -262,78 +276,90 @@ const RecuriterDashBoard = () => {
             </h2>
           </div>
           <div className="p-6">
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
-                      Scholarship Name
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
-                      Status
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
-                      Applications
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
-                      Deadline
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
-                      Action
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {scholarData.map((scholarship) => (
-                    <tr key={scholarship.id}>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="font-medium text-gray-900">
-                          {scholarship.title}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {getStatusBadge(scholarship.status)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-gray-500">
-                        {scholarship.applications}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-gray-500">
-                        {scholarship.deadline}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <Link
-                          href={`/dashboard/update-scholarship/${scholarship._id}`}
-                          className="text-[#B9FF66] hover:text-[#A5E55C] mr-3"
-                        >
-                          Edit
-                        </Link>
-                        <button
-                          onClick={() => handleDelete(scholarship._id)}
-                          className="text-red-600 hover:text-red-800"
-                        >
-                          Delete
-                        </button>
-                      </td>
+            {scholarData.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-gray-500">No scholarships found.</p>
+                <Link
+                  href={"/DashBoard/addJobDesc"}
+                  className="inline-block mt-4 text-[#B9FF66] hover:text-[#A5E55C] font-medium"
+                >
+                  Create your first scholarship
+                </Link>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th
+                        scope="col"
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      >
+                        Scholarship Name
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      >
+                        Status
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      >
+                        Applications
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      >
+                        Deadline
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      >
+                        Action
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {scholarData.map((scholarship) => (
+                      <tr key={scholarship._id}>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="font-medium text-gray-900">
+                            {scholarship.title}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {getStatusBadge(scholarship.status || "draft")}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-gray-500">
+                          {scholarship.applications || 0}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-gray-500">
+                          {scholarship.deadline || "No deadline set"}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          <Link
+                            href={`/dashboard/update-scholarship/${scholarship._id}`}
+                            className="text-[#B9FF66] hover:text-[#A5E55C] mr-3"
+                          >
+                            Edit
+                          </Link>
+                          <button
+                            onClick={() => handleDelete(scholarship._id)}
+                            className="text-red-600 hover:text-red-800"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </div>
 
