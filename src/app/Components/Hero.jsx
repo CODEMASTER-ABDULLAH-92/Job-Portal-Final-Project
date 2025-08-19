@@ -5,6 +5,7 @@ import { data } from "../assets/assets";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import Image from "next/image";
+import Link from "next/link";
 
 const Hero = () => {
   const imageRef = useRef();
@@ -33,9 +34,9 @@ const Hero = () => {
           opportunities, apply with ease, and take the next big step in your
           career journey.
         </p>
-        <button className="py-3 mt-5 text-xl rounded-[10px] text-white px-10 bg-green-600 hover:bg-green-700 transition-colors duration-200">
+        <Link href={"/jobs"} className="py-3 mt-5 text-xl rounded-[10px] text-white px-10 bg-green-600 hover:bg-green-700 transition-colors duration-200">
           Explore Jobs
-        </button>
+        </Link>
       </div>
 
       {/* Right */}
