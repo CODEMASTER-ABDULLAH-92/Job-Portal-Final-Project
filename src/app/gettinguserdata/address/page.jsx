@@ -216,7 +216,7 @@ const Address = () => {
                     Save
                   </button>
                   <Link
-                    href="/educational"
+                    href="/gettinguserdata/Educational"
                     className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-lg transition shadow-md hover:shadow-lg"
                   >
                     Next <ChevronRight className="h-5 w-5" />

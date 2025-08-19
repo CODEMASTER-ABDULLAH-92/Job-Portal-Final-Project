@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import {
   FaSchool,
   FaUniversity,
@@ -454,7 +454,7 @@ const Educational = () => {
           {/* Navigation Buttons */}
           <div className="flex flex-col sm:flex-row justify-between gap-4 pt-6">
             <Link
-              to="/address"
+              href="/address"
               className="flex items-center justify-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-3 px-6 rounded-lg transition shadow-sm"
             >
               <FaChevronLeft /> Previous
@@ -467,7 +467,7 @@ const Educational = () => {
                 <FaSave /> Save
               </button>
               <Link
-                to="/personalProject"
+                href="/gettinguserdata/Project"
                 className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-lg transition shadow-md hover:shadow-lg"
               >
                 Next <FaChevronRight />

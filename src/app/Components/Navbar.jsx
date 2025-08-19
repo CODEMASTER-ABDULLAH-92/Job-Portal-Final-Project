@@ -14,7 +14,7 @@ const Navbar = () => {
   const [showBurger, setShowBurger] = useState(false);
   const containerRef = useRef();
   const pathname = usePathname();
-  const { token, setToken } = useContext(AppContext); // assume you can update token
+  const { token, setToken, adminToken, setAdminToken } = useContext(AppContext);
   const router = useRouter();
 
   const navLinks = [
@@ -23,7 +23,6 @@ const Navbar = () => {
     { href: "/hireMate-academy-code365", label: "Academy", badge: "New!" },
   ];
 
-  // Animate navbar links on mount
   useGSAP(() => {
     gsap.fromTo(
       ".animate_nav",
@@ -32,10 +31,10 @@ const Navbar = () => {
     );
   });
 
-  // ✅ Logout handler
   const handleLogout = () => {
-    setToken(null); // clear token from context
-    router.push("/"); // redirect home
+    setToken(null);
+    setAdminToken(null);
+    router.push("/");
   };
 
   return (
@@ -67,12 +66,13 @@ const Navbar = () => {
                 <Link
                   href={link.href}
                   className={`transition-colors ${
-                    pathname === link.href ? "font-bold text-black" : "text-gray-700 hover:text-black"
+                    pathname === link.href
+                      ? "font-bold text-black"
+                      : "text-gray-700 hover:text-black"
                   }`}
                 >
                   {link.label}
                 </Link>
-                {/* Hover underline */}
                 <div className="absolute left-0 w-0 group-hover:w-full bg-black h-[2px] -bottom-1 transition-all duration-500 origin-left"></div>
               </li>
             ))}
@@ -80,21 +80,55 @@ const Navbar = () => {
         </nav>
 
         {/* ✅ Auth Dropdown */}
-        {token ? (
+        {token || adminToken ? (
           <div className="relative group">
             <button className="px-5 py-3 border border-gray-700 rounded-lg flex items-center gap-2 cursor-pointer hover:bg-gray-100 transition">
-              Account <ChevronDown size={18} />
+             Dashboard  <ChevronDown size={18} />
             </button>
-            <div className="absolute top-14 right-0 w-[160px] bg-white shadow-md rounded-md hidden group-hover:block z-20">
+            <div className="absolute top-14 right-0 w-[180px] bg-white shadow-md rounded-md hidden group-hover:block z-20">
               <ul className="py-2">
-                <li>
-                  <button
-                    onClick={() => router.push("/dashboard")}
-                    className="w-full text-left px-5 py-2 hover:bg-gray-100"
-                  >
-                    Dashboard
-                  </button>
-                </li>
+                {token && !adminToken && (
+                  <>
+                    <li>
+                      <button
+                        onClick={() => router.push("/apply-job")}
+                        className="w-full text-left px-5 py-2 hover:bg-gray-100"
+                      >
+                        Apply for Job
+                      </button>
+                    </li>
+                    <li>
+                      <button
+                        onClick={() => router.push("/admin-login")}
+                        className="w-full text-left px-5 py-2 hover:bg-gray-100"
+                      >
+                        Become Admin
+                      </button>
+                    </li>
+                  </>
+                )}
+
+                {adminToken && (
+                  <>
+                    <li>
+                      <button
+                        onClick={() => router.push("/login")}
+                        className="w-full text-left px-5 py-2 hover:bg-gray-100"
+                      >
+                        Add Job
+                      </button>
+                    </li>
+                    <li>
+                      <button
+                        onClick={() => router.push("/apply-job")}
+                        className="w-full text-left px-5 py-2 hover:bg-gray-100"
+                      >
+                        Switch to User
+                      </button>
+                    </li>
+                  </>
+                )}
+
                 <li>
                   <button
                     onClick={handleLogout}
@@ -114,18 +148,12 @@ const Navbar = () => {
             <div className="absolute top-14 right-0 w-[160px] bg-white shadow-md rounded-md hidden group-hover:block z-20">
               <ul className="py-2">
                 <li>
-                  <Link
-                    href="/login"
-                    className="block px-5 py-2 hover:bg-gray-100"
-                  >
+                  <Link href="/login" className="block px-5 py-2 hover:bg-gray-100">
                     User Login
                   </Link>
                 </li>
                 <li>
-                  <Link
-                    href="/admin-login"
-                    className="block px-5 py-2 hover:bg-gray-100"
-                  >
+                  <Link href="/admin-login" className="block px-5 py-2 hover:bg-gray-100">
                     Admin Login
                   </Link>
                 </li>
@@ -137,13 +165,11 @@ const Navbar = () => {
 
       {/* ✅ Mobile Navbar */}
       <div className="sm:hidden flex justify-between items-center py-5">
-        {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
           <Image src={data.Icon} width={28} height={28} alt="Logo" />
           <p className="text-2xl font-semibold">HireMate.</p>
         </Link>
 
-        {/* Burger Menu */}
         <button
           onClick={() => setShowBurger(!showBurger)}
           className="flex flex-col justify-center items-center space-y-1 cursor-pointer z-50"
@@ -179,26 +205,21 @@ const Navbar = () => {
               href={link.href}
               onClick={() => setShowBurger(false)}
               className={`${
-                pathname === link.href ? "font-bold text-black" : "text-gray-700 hover:text-black"
+                pathname === link.href
+                  ? "font-bold text-black"
+                  : "text-gray-700 hover:text-black"
               }`}
             >
               {link.label}
             </Link>
           ))}
-          {!token ? (
+
+          {!token && !adminToken ? (
             <>
-              <Link
-                href="/login"
-                onClick={() => setShowBurger(false)}
-                className={`${pathname === "/login" ? "font-bold" : ""}`}
-              >
+              <Link href="/login" onClick={() => setShowBurger(false)}>
                 User Login
               </Link>
-              <Link
-                href="/admin-login"
-                onClick={() => setShowBurger(false)}
-                className={`${pathname === "/admin-login" ? "font-bold" : ""}`}
-              >
+              <Link href="/admin-login" onClick={() => setShowBurger(false)}>
                 Admin Login
               </Link>
             </>
@@ -213,6 +234,53 @@ const Navbar = () => {
               >
                 Dashboard
               </button>
+
+              {token && !adminToken && (
+                <>
+                  <button
+                    onClick={() => {
+                      setShowBurger(false);
+                      router.push("/apply-job");
+                    }}
+                    className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+                  >
+                    Apply for Job
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowBurger(false);
+                      router.push("/become-admin");
+                    }}
+                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                  >
+                    Become Admin
+                  </button>
+                </>
+              )}
+
+              {adminToken && (
+                <>
+                  <button
+                    onClick={() => {
+                      setShowBurger(false);
+                      router.push("/add-job");
+                    }}
+                    className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+                  >
+                    Add Job
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowBurger(false);
+                      router.push("/apply-job");
+                    }}
+                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                  >
+                    Switch to User
+                  </button>
+                </>
+              )}
+
               <button
                 onClick={() => {
                   setShowBurger(false);

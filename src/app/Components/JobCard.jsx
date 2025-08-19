@@ -27,10 +27,10 @@ const JobCard = ({
     }
     if (!userProfile) {
       toast.error("Complete Your Profile for Job Apply");
-      return router.push("/personalData");
+      return router.push("/gettinguserdata/personalInfo");
     }
     toast.success("Thanks for Applying this Job");
-    // router.push(`/apply/${id}`);
+    router.push(`/apply/${id}`);
   };
 
   return (
