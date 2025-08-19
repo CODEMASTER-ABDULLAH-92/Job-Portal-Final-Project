@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from "react";
 import { FaGithub, FaLink, FaLinkedin, FaPlus, FaTrash, FaEdit } from "react-icons/fa";
 import { FiExternalLink } from "react-icons/fi";

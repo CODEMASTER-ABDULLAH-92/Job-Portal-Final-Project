@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from "react";
 import { Dot } from "lucide-react";
 import Link from "next/link";
