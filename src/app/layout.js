@@ -1,14 +1,10 @@
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { AppContextProvider } from "./Context/ContextApi";
+import { Space_Grotesk } from "next/font/google"; // ✅ Import from next/font/google
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const grotesk = Space_Grotesk({
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"], // pick weights you need
 });
 
 export const metadata = {
@@ -19,10 +15,8 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
+      <body className={`${grotesk.className} antialiased`}>
+        <AppContextProvider>{children}</AppContextProvider>
       </body>
     </html>
   );
