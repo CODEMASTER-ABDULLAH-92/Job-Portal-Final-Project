@@ -19,8 +19,7 @@ const Navbar = () => {
 
   const navLinks = [
     { href: "/jobs", label: "Jobs" },
-    { href: "/hire-dev", label: "Hire Dev" },
-    { href: "/hireMate-academy-code365", label: "Academy", badge: "New!" },
+
   ];
 
   useGSAP(() => {
