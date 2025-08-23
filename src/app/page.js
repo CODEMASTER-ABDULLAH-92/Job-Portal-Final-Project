@@ -50,7 +50,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="mx-auto max-w-6xl">
+    <div className="md:mx-auto mx-4 md:max-w-6xl">
       <Navbar />
       <Hero />
 
