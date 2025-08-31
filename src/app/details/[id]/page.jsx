@@ -1,9 +1,9 @@
 "use client";
 import React, { useContext, useEffect, useState } from "react";
-import { AppContext } from "@/app/Context/ContextApi";
+import { AppContext } from "@/src/app/Context/ContextApi";
 import { useParams } from "next/navigation"; // ✅ Correct import for Next.js
-import SimilarJobs from "@/app/Components/SimilarJobs";
-import JobSectionFooter from "@/app/Components/JObSectionFooter"; // ✅ fixed typo in import name
+import SimilarJobs from "@/src/app/Components/SimilarJobs";
+import JobSectionFooter from "@/src/app/Components/JObSectionFooter"; // ✅ fixed typo in import name
 import Link from "next/link"; // ✅ Correct import
 
 const JobDetails = () => {

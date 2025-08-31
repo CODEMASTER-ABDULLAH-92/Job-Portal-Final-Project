@@ -41,7 +41,7 @@ router.push("/DashBoard/adminDashboard")
 }
   return (
     <>
-      <div className="flex flex-col sm:flex-row h-screen w-full">
+      <div className="flex overflow-clip flex-col sm:flex-row h-screen w-full">
         {/* Left Section - Image */}
         <div className="w-full sm:w-1/2 h-60 sm:h-full bg-green-100 hidden sm:flex items-center justify-center">
           <Image
@@ -70,6 +70,26 @@ router.push("/DashBoard/adminDashboard")
             <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-6">
               Register with us !
             </h2>
+
+
+
+  {/* UserName Input */}
+            <div className="mb-4">
+              <label
+                htmlFor="username"
+                className="block cursor-pointer text-sm font-medium text-gray-700 mb-1"
+              >
+                Username
+              </label>
+              <input
+                type="text"
+                id="username"
+                placeholder="Enter your name"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-300"
+                required
+              />
+            </div>
+
 
             {/* Email Input */}
             <div className="mb-4">

@@ -5,7 +5,7 @@ import { Dot } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { AppContext } from "@/app/Context/ContextApi";
+import { AppContext } from "@/src/app/Context/ContextApi";
 
 const JobCard = ({
   jobName,

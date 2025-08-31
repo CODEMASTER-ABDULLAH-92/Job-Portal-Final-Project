@@ -7,7 +7,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { ChevronDown } from "lucide-react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
-import { data } from "@/app/assets/assets";
+import { data } from "../assets/assets";
 import { AppContext } from "../Context/ContextApi";
 
 const Navbar = () => {
