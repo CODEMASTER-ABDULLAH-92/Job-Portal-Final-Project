@@ -2,19 +2,20 @@ import dbConnect from "@/src/app/lib/db";
 import userDetailsModel from "@/src/app/models/userDetails.model";
 import { NextResponse } from "next/server";
 
-export async function GET(){
+export async function GET(request:Request, context: {params: Promise<{id:string}>}){
     await dbConnect();
+    const {id} = await context.params;
     try {
-        const getAllUsers = await userDetailsModel.find({}).sort({createdAt:-1});
+        const singleUserDetails = await userDetailsModel.findById(id);
         return NextResponse.json({
             success:true,
-            message:"Fetching all users details",
-            getAllUsers
+            message:"Getting single User successfully",
+            singleUserDetails,
         })
     } catch (error) {
         return NextResponse.json({
             success:false,
-            message:"Err in Fetching all users details",
+            message:"Err in singleUser Details"
         })
     }
 }

@@ -1,6 +1,7 @@
 import "./globals.css";
 import { AppContextProvider } from "./Context/ContextApi";
 import { Space_Grotesk } from "next/font/google"; // ✅ Import from next/font/google
+import { Toaster } from "react-hot-toast";
 
 const grotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -16,6 +17,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={`${grotesk.className} antialiased`}>
+        <Toaster/>
         <AppContextProvider>{children}</AppContextProvider>
       </body>
     </html>
