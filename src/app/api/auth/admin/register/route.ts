@@ -88,7 +88,6 @@ export async function POST(request: Request) {
       success: true,
       message: "Admin registered successfully!",
       admin,
-
     });
   } catch (error) {
     return NextResponse.json({

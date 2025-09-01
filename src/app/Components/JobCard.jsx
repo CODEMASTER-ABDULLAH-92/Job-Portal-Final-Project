@@ -17,7 +17,7 @@ const JobCard = ({
   id,
 }) => {
   const [isFilled, setIsFilled] = useState(false);
-  const { userProfile, token } = useContext(AppContext) || {};
+  const { userProfile, token , jobData} = useContext(AppContext) || {};
   const router = useRouter();
 
   const checkUserStatus = () => {

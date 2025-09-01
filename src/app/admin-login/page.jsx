@@ -1,10 +1,39 @@
 "use client";
-import React, { useContext } from "react";
+import React, { useState } from "react";
 import { data } from "../assets/assets";
 import Link from "next/link";
 import Image from "next/image";
+import axios from "axios";
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
-const page = () => {
+const Page = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const router = useRouter();
+
+  const onsubmitHandler = async (e) => {
+    e.preventDefault();
+
+    try {
+      const response = await axios.post(
+        "/api/auth/admin/login",
+        { email, password },
+        { withCredentials: true }
+      );
+
+      if (response.data.success) {
+        setEmail("");
+        setPassword("");
+        toast.success("Admin logged in successfully");
+        router.push("/DashBoard/adminDashboard");
+        localStorage.setItem("adminUserName", response.data.admin.userName);
+      }
+    } catch (error) {
+      console.error("Error logging in admin:", error);
+      toast.error("Login failed. Please try again.");
+    }
+  };
 
   return (
     <div className="flex flex-col sm:flex-row h-screen w-full">
@@ -19,7 +48,10 @@ const page = () => {
 
       {/* Right Section - Form */}
       <div className="w-full sm:w-1/2 flex h-full items-center justify-center bg-white">
-        <form className="w-full max-w-md px-6 py-8 sm:px-8 sm:py-10">
+        <form
+          onSubmit={onsubmitHandler}
+          className="w-full max-w-md px-6 py-8 sm:px-8 sm:py-10"
+        >
           {/* Logo + Branding */}
           <Link href="/" className="flex items-center gap-2 mb-6">
             <Image
@@ -46,6 +78,8 @@ const page = () => {
             <input
               type="email"
               id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               autoComplete="email"
               placeholder="Enter your email"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-300"
@@ -64,6 +98,8 @@ const page = () => {
             <input
               type="password"
               id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               autoComplete="current-password"
               placeholder="Enter your password"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -74,7 +110,7 @@ const page = () => {
           {/* Links */}
           <div className="flex justify-between text-sm mb-6">
             <Link href="/admin-signup" className="text-blue-600 hover:underline">
-              Sign Up
+              Don’t have an account? Sign Up
             </Link>
           </div>
 
@@ -91,4 +127,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

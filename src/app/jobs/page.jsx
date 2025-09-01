@@ -1,14 +1,19 @@
 "use client";
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useContext } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import JobCard from "@/src/app/Components/JobCard";
-import { jobData } from "../assets/assets";
+
 import Navbar from "../Components/Navbar";
 import JObSectionFooter from "../Components/JObSectionFooter";
+import { AppContext } from "../Context/ContextApi";
 
 const JobsSections = () => {
+
+  const {jobData} = useContext(AppContext);
+
+
   const [hideJobType, setHideJobType] = useState(true);
   const [hideLocation, setHideLocation] = useState(false);
   const [hideCategory, setHideCategory] = useState(false);

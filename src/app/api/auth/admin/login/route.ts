@@ -50,6 +50,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       message: "Admin logged in successfully",
+      admin,
       adminToken, // optional: send token if you need it on client
     });
   } catch (error) {

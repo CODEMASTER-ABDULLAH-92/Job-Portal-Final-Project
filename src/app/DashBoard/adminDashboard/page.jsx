@@ -1,7 +1,7 @@
-"use client"
+"use client";
 import React, { useContext, useEffect, useState } from "react";
 import {
-  Award,
+  Briefcase,
   Users,
   FileText,
   CheckCircle,
@@ -14,14 +14,16 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import Cookies from "js-cookie";
 import { AppContext } from "../../Context/ContextApi";
+import { useRouter } from "next/navigation";
 
-const RecuriterDashBoard = () => {
-  const { data, url, totalApplications } = useContext(AppContext);
-  const [scholarData, setScholarData] = useState([]);
+const Page = () => {
+  const { url } = useContext(AppContext);
+  const [jobData, setJobData] = useState([]);
   const [recruiterId, setRecruiterId] = useState("");
   const [recruiterName, setRecruiterName] = useState("");
-  
-  // Get data from localStorage only on client side
+  const router = useRouter();
+  const adminName = localStorage.getItem("adminUserName");
+  // Get recruiter info from localStorage
   useEffect(() => {
     setRecruiterId(localStorage.getItem("recruiterId") || "");
     setRecruiterName(localStorage.getItem("nameR") || "");
@@ -30,35 +32,32 @@ const RecuriterDashBoard = () => {
   const handleDelete = async (id) => {
     try {
       const response = await axios.delete(
-        `${url}/api/scholarship/remove-scholarShipDetails/${id}`
+        `${url}/api/job/remove-job/${id}`
       );
       if (response.data.success) {
-        toast.success("Scholarship deleted successfully");
-        // Refresh the data after deletion
-        getingSingleData();
+        toast.success("Job deleted successfully");
+        getJobs();
       } else {
         toast.error(response.data.message);
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || "Error deleting scholarship");
+      toast.error(error.response?.data?.message || "Error deleting job");
     }
   };
 
-  const logoutRecuriter = async () => {
+  const logoutAmin = async () => {
     try {
       const response = await axios.post(
-        `${url}/api/recruiter/recruiter-logout`,
+        `/api/auth/admin/logout`,
         {},
         { withCredentials: true }
       );
       if (response.data.success) {
-        Cookies.remove("tokenR");
-        localStorage.removeItem("nameR");
-        localStorage.removeItem("emailR");
-        localStorage.removeItem("recruiterId");
-        toast.success(response.data.message);
-        // Redirect to home page after logout
+        Cookies.remove("adminToken");
+        localStorage.removeItem("adminUserName");
+        toast.success("Logout Successfully");
         window.location.href = "/";
+        router.push("/");
       }
     } catch (error) {
       console.error("Error in Logout ", error);
@@ -66,53 +65,53 @@ const RecuriterDashBoard = () => {
     }
   };
 
-  const getingSingleData = async () => {
+  const getJobs = async () => {
     if (!recruiterId) return;
-    
+
     try {
       const response = await axios.get(
-        `${url}/api/scholarship/get-single-scholar-info/${recruiterId.trim()}`,
+        `${url}/api/job/get-jobs/${recruiterId.trim()}`,
         { withCredentials: true }
       );
       if (response.data.success) {
-        setScholarData(response.data.data);
+        setJobData(response.data.data);
       }
     } catch (error) {
-      console.error("Error in getting Data", error);
-      toast.error(error.response?.data?.message || "Error fetching data");
+      console.error("Error fetching jobs", error);
+      toast.error(error.response?.data?.message || "Error fetching jobs");
     }
   };
 
   useEffect(() => {
     if (recruiterId) {
-      getingSingleData();
+      getJobs();
     }
   }, [recruiterId]);
 
   const stats = [
     {
-      title: "Total Scholarships",
-      value: scholarData.length,
-      icon: <Award size={20} className="text-[#B9FF66]" />,
-      change: "+5 this month",
+      title: "Total Job Postings",
+      value: jobData.length,
+      icon: <Briefcase size={20} className="text-[#B9FF66]" />,
+      change: "+3 this month",
       bg: "bg-[#B9FF66]/10",
     },
     {
-      title: "Active Applicants",
+      title: "Active Candidates",
       value: "1,248",
       icon: <Users size={20} className="text-[#B9FF66]" />,
       change: "12% increase",
       bg: "bg-[#B9FF66]/10",
     },
     {
-      title: "Applications",
+      title: "Applications Received",
       value: "856",
       icon: <FileText size={20} className="text-[#B9FF66]" />,
       change: "32 new today",
       bg: "bg-[#B9FF66]/10",
     },
     {
-      title: "Approval Rate",
+      title: "Hire Success Rate",
       value: "68%",
       icon: <CheckCircle size={20} className="text-[#B9FF66]" />,
       change: "2% better",
@@ -124,28 +123,28 @@ const RecuriterDashBoard = () => {
     {
       id: 1,
       name: "Sarah Johnson",
-      scholarship: "Merit Scholarship",
+      job: "Frontend Developer",
       status: "pending",
       date: "2 hours ago",
     },
     {
       id: 2,
       name: "Michael Chen",
-      scholarship: "Need-Based Aid",
+      job: "Backend Engineer",
       status: "approved",
       date: "5 hours ago",
     },
     {
       id: 3,
       name: "Emma Williams",
-      scholarship: "Merit Scholarship",
+      job: "UI/UX Designer",
       status: "rejected",
       date: "1 day ago",
     },
     {
       id: 4,
       name: "David Kim",
-      scholarship: "Need-Based Aid",
+      job: "Data Analyst",
       status: "pending",
       date: "1 day ago",
     },
@@ -195,17 +194,18 @@ const RecuriterDashBoard = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
             <Link 
-              href="/recruiter-dashboard" 
+              href="/" 
               className="text-xl font-bold text-gray-800"
             >
-              Scholarship <span className="text-[#B9FF66]">Admin</span> Portal
+              HireMate. <p className="text-[10px] absolute left-28 top-3">Admin <span className="text-[#B9FF66]"> portal</span></p>
+
             </Link>
 
             <div className="flex items-center space-x-4">
               <div className="flex items-center">
                 <div className="h-8 w-8 rounded-full bg-[#B9FF66] flex items-center justify-center text-gray-800 font-medium">
-                  {recruiterName?.charAt(0).toUpperCase() || ""}
-                  {recruiterName?.charAt(1).toUpperCase() || ""}
+                  {adminName?.charAt(0).toUpperCase() || ""}
+                  {adminName?.charAt(1).toUpperCase() || ""}
                 </div>
                 <div className="relative group inline-block">
                   <ChevronDown
@@ -213,7 +213,7 @@ const RecuriterDashBoard = () => {
                     className="ml-1 text-gray-500 md:inline cursor-pointer"
                   />
                   <button
-                    onClick={() => logoutRecuriter()}
+                    onClick={() => logoutAmin()}
                     className="absolute top-7 right-0 hidden group-hover:block bg-gray-200 p-2 rounded-lg shadow hover:bg-gray-300 transition"
                   >
                     Logout
@@ -258,32 +258,32 @@ const RecuriterDashBoard = () => {
               className="flex items-center gap-2 bg-[#B9FF66] hover:bg-[#A5E55C] text-gray-800 px-4 py-3 rounded-xl text-sm font-medium shadow-md hover:shadow-lg transition"
             >
               <Plus size={16} />
-              Create New Scholarship
+              Create New Job
             </Link>
-            <button className="flex items-center gap-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-4 py-3 rounded-xl text-sm font-medium shadow-sm hover:shadow-md transition">
+            <Link href={"/DashBoard/viewAllJobs"} className="flex items-center gap-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-4 py-3 rounded-xl text-sm font-medium shadow-sm hover:shadow-md transition">
               <FileText size={16} />
               View All Applications
-            </button>
+            </Link>
           </div>
         </div>
 
-        {/* Recent Scholarships */}
+        {/* Recent Jobs */}
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200 mb-8">
           <div className="bg-[#B9FF66] px-6 py-4">
             <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-3">
-              <Award size={24} />
-              Recent Scholarships
+              <Briefcase size={24} />
+              Recent Job Postings
             </h2>
           </div>
           <div className="p-6">
-            {scholarData.length === 0 ? (
+            {jobData.length === 0 ? (
               <div className="text-center py-8">
-                <p className="text-gray-500">No scholarships found.</p>
+                <p className="text-gray-500">No jobs found.</p>
                 <Link
-                  href={"/DashBoard/addJobDesc"}
+                  href={"/dashboard/add-job"}
                   className="inline-block mt-4 text-[#B9FF66] hover:text-[#A5E55C] font-medium"
                 >
-                  Create your first scholarship
+                  Post your first job
                 </Link>
               </div>
             ) : (
@@ -291,64 +291,49 @@ const RecuriterDashBoard = () => {
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        Scholarship Name
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Job Title
                       </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Status
                       </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Applications
                       </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Deadline
                       </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Action
                       </th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {scholarData.map((scholarship) => (
-                      <tr key={scholarship._id}>
+                    {jobData.map((job) => (
+                      <tr key={job._id}>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="font-medium text-gray-900">
-                            {scholarship.title}
+                            {job.title}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          {getStatusBadge(scholarship.status || "draft")}
+                          {getStatusBadge(job.status || "draft")}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-gray-500">
-                          {scholarship.applications || 0}
+                          {job.applications || 0}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-gray-500">
-                          {scholarship.deadline || "No deadline set"}
+                          {job.deadline || "No deadline set"}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <Link
-                            href={`/dashboard/update-scholarship/${scholarship._id}`}
+                            href={`/dashboard/update-job/${job._id}`}
                             className="text-[#B9FF66] hover:text-[#A5E55C] mr-3"
                           >
                             Edit
                           </Link>
                           <button
-                            onClick={() => handleDelete(scholarship._id)}
+                            onClick={() => handleDelete(job._id)}
                             className="text-red-600 hover:text-red-800"
                           >
                             Delete
@@ -392,34 +377,19 @@ const RecuriterDashBoard = () => {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Applicant
                     </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
-                      Scholarship
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Job
                     </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Status
                     </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Date
                     </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Action
                     </th>
                   </tr>
@@ -433,7 +403,7 @@ const RecuriterDashBoard = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-gray-500">
-                        {application.scholarship}
+                        {application.job}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         {getStatusBadge(application.status)}
@@ -476,5 +446,4 @@ const RecuriterDashBoard = () => {
     </div>
   );
 };
-
-export default RecuriterDashBoard;
+export default Page;
