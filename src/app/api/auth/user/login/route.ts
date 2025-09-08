@@ -45,9 +45,6 @@ export async function POST(request: Request) {
     const cookieStore = await cookies();
 
     cookieStore.set("userToken", userToken, {
-      httpOnly: true, // ✅ prevent JS access (important for security)
-      secure: process.env.NODE_ENV === "production", // ✅ HTTPS only in prod
-      sameSite: "strict",
       path: "/",
       maxAge: 7 * 24 * 60 * 60, // 7 days
     });
@@ -55,7 +52,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       message: "Login successful",
-      token: userToken, // optional if you want to return it
+      User
     });
   } catch (error: any) {
     console.error("Login error:", error);

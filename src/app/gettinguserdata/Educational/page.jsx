@@ -10,45 +10,95 @@ import {
   FaChevronLeft,
   FaChevronRight,
   FaSave,
-  FaCalendarAlt,
-  FaClipboardList
+  FaClipboardList,
 } from "react-icons/fa";
+import axios from "axios";
+import toast from "react-hot-toast";
 
 const Educational = () => {
   const [formData, setFormData] = useState({
-    /* School Education */
-    degreeLevel: "",
-    schoolName: "",
-    degreeDiscipline: "",
-    obtainedMarks: "",
-    totalMarks: "",
-    percentage: "",
-    /* College Education */
-    collegedegreeLevel: "",
-    collegesName: "",
-    collegeDegreeDiscipline: "",
-    collegeObtainedMarks: "",
-    collegeTotalMarks: "",
-    collegePercentage: "",
-    /* University Education */
-    universityDegreeLevel: "",
-    universityName: "",
-    universityCurrentSemeter: "",
-    universityDegreeDiscipline: "",
-    universityObtainedCGPA: "",
-    universityTotalCGPA: "",
-    universityPercentage: ""
+    programLevel: "",
+    instituteName: "",
+    schoolDiscipline: "",
+    schoolObtaintedMarks: "",
+    schoolTotalMarks: "",
+    percentageOfMarks: "",
+    secondaryProgramLevel: "",
+    secondaryInstituteName: "",
+    secondaryDiscipline: "",
+    secondaryObtaintedMarks: "",
+    secondaryTotalMarks: "",
+    secondaryPercentageOfMarks: "",
+    UniversityprogramLevel: "",
+    UniversityinstituteName: "",
+    UniversityschoolDiscipline: "",
+    UniversityschoolObtaintedMarks: "",
+    UniversityschoolTotalMarks: "",
+    UniversitypercentageOfMarks: "",
   });
 
   const onChangeHandler = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const onSubmitHandler = (e) => {
+  const uId = localStorage.getItem("userId");
+  const onSubmitHandler = async (e) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
-    // Form submission logic would go here
+    try {
+      const formDataToSend = new FormData();
+     formDataToSend.append("userId", uId);
+     formDataToSend.append("programLevel",formData.programLevel),
+     formDataToSend.append("instituteName",formData.instituteName),
+     formDataToSend.append("schoolDiscipline",formData.schoolDiscipline),
+     formDataToSend.append("schoolObtaintedMarks",formData.schoolObtaintedMarks),
+     formDataToSend.append("schoolTotalMarks",formData.schoolTotalMarks),
+     formDataToSend.append("percentageOfMarks",formData.percentageOfMarks),
+     formDataToSend.append("secondaryProgramLevel",formData.secondaryProgramLevel),
+     formDataToSend.append("secondaryInstituteName",formData.secondaryInstituteName),
+     formDataToSend.append("secondaryDiscipline",formData.secondaryDiscipline),
+     formDataToSend.append("secondaryObtaintedMarks",formData.secondaryObtaintedMarks),
+     formDataToSend.append("secondaryTotalMarks",formData.secondaryTotalMarks),
+     formDataToSend.append("secondaryPercentageOfMarks",formData.secondaryPercentageOfMarks),
+     formDataToSend.append("UniversityprogramLevel",formData.UniversityprogramLevel),
+     formDataToSend.append("UniversityinstituteName",formData.UniversityinstituteName),
+     formDataToSend.append("UniversityschoolDiscipline",formData.UniversityschoolDiscipline),
+     formDataToSend.append("UniversityschoolObtaintedMarks",formData.UniversityschoolObtaintedMarks),
+     formDataToSend.append("UniversityschoolTotalMarks",formData.UniversityschoolTotalMarks),
+     formDataToSend.append("UniversitypercentageOfMarks",formData.UniversitypercentageOfMarks)
+
+      const response = await axios.post("/api/userCompleteInfo/addUserDetails", formDataToSend, {
+        headers: { "Content-Type": "multipart/form-data" },
+        withCredentials: true
+      });
+      
+      if (response.data.success) {
+    setFormData({
+    programLevel: "",
+    instituteName: "",
+    schoolDiscipline: "",
+    schoolObtaintedMarks: "",
+    schoolTotalMarks: "",
+    percentageOfMarks: "",
+    secondaryProgramLevel: "",
+    secondaryInstituteName: "",
+    secondaryDiscipline: "",
+    secondaryObtaintedMarks: "",
+    secondaryTotalMarks: "",
+    secondaryPercentageOfMarks: "",
+    UniversityprogramLevel: "",
+    UniversityinstituteName: "",
+    UniversityschoolDiscipline: "",
+    UniversityschoolObtaintedMarks: "",
+    UniversityschoolTotalMarks: "",
+    UniversitypercentageOfMarks: "",
+        })
+        toast.success("Details Added Successfully!");
+      }
+    } catch (error) {
+      toast.error("Error saving educational details");
+      console.error("Submission error:", error);
+    }
   };
 
   return (
@@ -82,9 +132,9 @@ const Educational = () => {
                     Program Title <span className="text-red-500">*</span>
                   </span>
                 </label>
-                <select 
-                  name="degreeLevel"
-                  value={formData.degreeLevel}
+                <select
+                  name="programLevel"
+                  value={formData.programLevel}
                   onChange={onChangeHandler}
                   className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#B9FF66] focus:border-[#B9FF66] outline-none transition shadow-sm"
                   required
@@ -105,8 +155,8 @@ const Educational = () => {
                 </label>
                 <input
                   type="text"
-                  name="schoolName"
-                  value={formData.schoolName}
+                  name="instituteName"
+                  value={formData.instituteName}
                   onChange={onChangeHandler}
                   placeholder="Enter institution name"
                   className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#B9FF66] focus:border-[#B9FF66] outline-none transition shadow-sm"
@@ -122,9 +172,9 @@ const Educational = () => {
                     Discipline <span className="text-red-500">*</span>
                   </span>
                 </label>
-                <select 
-                  name="degreeDiscipline"
-                  value={formData.degreeDiscipline}
+                <select
+                  name="schoolDiscipline"
+                  value={formData.schoolDiscipline}
                   onChange={onChangeHandler}
                   className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#B9FF66] focus:border-[#B9FF66] outline-none transition shadow-sm"
                   required
@@ -143,8 +193,8 @@ const Educational = () => {
                   </label>
                   <input
                     type="number"
-                    name="obtainedMarks"
-                    value={formData.obtainedMarks}
+                    name="schoolObtaintedMarks"
+                    value={formData.schoolObtaintedMarks}
                     onChange={onChangeHandler}
                     placeholder="Obtained marks"
                     className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#B9FF66] focus:border-[#B9FF66] outline-none transition shadow-sm"
@@ -157,8 +207,8 @@ const Educational = () => {
                   </label>
                   <input
                     type="number"
-                    name="totalMarks"
-                    value={formData.totalMarks}
+                    name="schoolTotalMarks"
+                    value={formData.schoolTotalMarks}
                     onChange={onChangeHandler}
                     placeholder="Total marks"
                     className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#B9FF66] focus:border-[#B9FF66] outline-none transition shadow-sm"
@@ -177,8 +227,8 @@ const Educational = () => {
                 </label>
                 <input
                   type="text"
-                  name="percentage"
-                  value={formData.percentage}
+                  name="percentageOfMarks"
+                  value={formData.percentageOfMarks}
                   onChange={onChangeHandler}
                   className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#B9FF66] focus:border-[#B9FF66] outline-none transition shadow-sm"
                   required
@@ -204,9 +254,9 @@ const Educational = () => {
                     Program Title <span className="text-red-500">*</span>
                   </span>
                 </label>
-                <select 
-                  name="collegedegreeLevel"
-                  value={formData.collegedegreeLevel}
+                <select
+                  name="secondaryProgramLevel"
+                  value={formData.secondaryProgramLevel}
                   onChange={onChangeHandler}
                   className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#B9FF66] focus:border-[#B9FF66] outline-none transition shadow-sm"
                   required
@@ -227,8 +277,8 @@ const Educational = () => {
                 </label>
                 <input
                   type="text"
-                  name="collegesName"
-                  value={formData.collegesName}
+                  name="secondaryInstituteName"
+                  value={formData.secondaryInstituteName}
                   onChange={onChangeHandler}
                   placeholder="Enter institution name"
                   className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#B9FF66] focus:border-[#B9FF66] outline-none transition shadow-sm"
@@ -244,9 +294,9 @@ const Educational = () => {
                     Discipline <span className="text-red-500">*</span>
                   </span>
                 </label>
-                <select 
-                  name="collegeDegreeDiscipline"
-                  value={formData.collegeDegreeDiscipline}
+                <select
+                  name="secondaryDiscipline"
+                  value={formData.secondaryDiscipline}
                   onChange={onChangeHandler}
                   className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#B9FF66] focus:border-[#B9FF66] outline-none transition shadow-sm"
                   required
@@ -267,8 +317,8 @@ const Educational = () => {
                   </label>
                   <input
                     type="number"
-                    name="collegeObtainedMarks"
-                    value={formData.collegeObtainedMarks}
+                    name="secondaryObtaintedMarks"
+                    value={formData.secondaryObtaintedMarks}
                     onChange={onChangeHandler}
                     placeholder="Obtained marks"
                     className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#B9FF66] focus:border-[#B9FF66] outline-none transition shadow-sm"
@@ -281,8 +331,8 @@ const Educational = () => {
                   </label>
                   <input
                     type="number"
-                    name="collegeTotalMarks"
-                    value={formData.collegeTotalMarks}
+                    name="secondaryTotalMarks"
+                    value={formData.secondaryTotalMarks}
                     onChange={onChangeHandler}
                     placeholder="Total marks"
                     className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#B9FF66] focus:border-[#B9FF66] outline-none transition shadow-sm"
@@ -301,8 +351,8 @@ const Educational = () => {
                 </label>
                 <input
                   type="text"
-                  name="collegePercentage"
-                  value={formData.collegePercentage}
+                  name="secondaryPercentageOfMarks"
+                  value={formData.secondaryPercentageOfMarks}
                   onChange={onChangeHandler}
                   className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#B9FF66] focus:border-[#B9FF66] outline-none transition shadow-sm"
                   required
@@ -328,9 +378,9 @@ const Educational = () => {
                     Degree Level <span className="text-red-500">*</span>
                   </span>
                 </label>
-                <select 
-                  name="universityDegreeLevel"
-                  value={formData.universityDegreeLevel}
+                <select
+                  name="UniversityprogramLevel"
+                  value={formData.UniversityprogramLevel}
                   onChange={onChangeHandler}
                   className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#B9FF66] focus:border-[#B9FF66] outline-none transition shadow-sm"
                   required
@@ -352,8 +402,8 @@ const Educational = () => {
                 </label>
                 <input
                   type="text"
-                  name="universityCurrentSemeter"
-                  value={formData.universityCurrentSemeter}
+                  name="UniversityschoolDiscipline"
+                  value={formData.UniversityschoolDiscipline}
                   onChange={onChangeHandler}
                   placeholder="Current Semester"
                   className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#B9FF66] focus:border-[#B9FF66] outline-none transition shadow-sm"
@@ -371,8 +421,8 @@ const Educational = () => {
                 </label>
                 <input
                   type="text"
-                  name="universityName"
-                  value={formData.universityName}
+                  name="UniversityinstituteName"
+                  value={formData.UniversityinstituteName}
                   onChange={onChangeHandler}
                   placeholder="University Name"
                   className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#B9FF66] focus:border-[#B9FF66] outline-none transition shadow-sm"
@@ -380,24 +430,7 @@ const Educational = () => {
                 />
               </div>
 
-              {/* Discipline */}
-              <div className="space-y-2">
-                <label className="block text-gray-700 font-medium">
-                  <span className="flex items-center gap-2">
-                    <FaClipboardList className="text-[#B9FF66]" />
-                    Major/Specialization <span className="text-red-500">*</span>
-                  </span>
-                </label>
-                <input
-                  type="text"
-                  name="universityDegreeDiscipline"
-                  value={formData.universityDegreeDiscipline}
-                  onChange={onChangeHandler}
-                  placeholder="Major/Specialization"
-                  className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#B9FF66] focus:border-[#B9FF66] outline-none transition shadow-sm"
-                  required
-                />
-              </div>
+
 
               {/* CGPA Section */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -407,8 +440,8 @@ const Educational = () => {
                   </label>
                   <input
                     type="number"
-                    name="universityObtainedCGPA"
-                    value={formData.universityObtainedCGPA}
+                    name="UniversityschoolObtaintedMarks"
+                    value={formData.UniversityschoolObtaintedMarks}
                     onChange={onChangeHandler}
                     placeholder="Obtained CGPA"
                     className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#B9FF66] focus:border-[#B9FF66] outline-none transition shadow-sm"
@@ -421,8 +454,8 @@ const Educational = () => {
                   </label>
                   <input
                     type="number"
-                    name="universityTotalCGPA"
-                    value={formData.universityTotalCGPA}
+                    name="UniversityschoolTotalMarks"
+                    value={formData.UniversityschoolTotalMarks}
                     onChange={onChangeHandler}
                     placeholder="Total CGPA"
                     className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#B9FF66] focus:border-[#B9FF66] outline-none transition shadow-sm"
@@ -441,8 +474,8 @@ const Educational = () => {
                 </label>
                 <input
                   type="text"
-                  name="universityPercentage"
-                  value={formData.universityPercentage}
+                  name="UniversitypercentageOfMarks"
+                  value={formData.UniversitypercentageOfMarks}
                   onChange={onChangeHandler}
                   className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#B9FF66] focus:border-[#B9FF66] outline-none transition shadow-sm"
                   required

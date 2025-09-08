@@ -28,6 +28,7 @@ const Page = () => {
         toast.success("Admin logged in successfully");
         router.push("/DashBoard/adminDashboard");
         localStorage.setItem("adminUserName", response.data.admin.userName);
+        localStorage.setItem("adminId", response.data.admin._id);
       }
     } catch (error) {
       console.error("Error logging in admin:", error);
@@ -36,7 +37,7 @@ const Page = () => {
   };
 
   return (
-    <div className="flex flex-col sm:flex-row h-screen w-full">
+    <div className="flex relative flex-col sm:flex-row h-screen w-full">
       {/* Left Section - Image */}
       <div className="w-full sm:w-1/2 h-60 sm:h-full bg-green-100 hidden sm:flex items-center justify-center">
         <Image
@@ -47,20 +48,22 @@ const Page = () => {
       </div>
 
       {/* Right Section - Form */}
-      <div className="w-full sm:w-1/2 flex h-full items-center justify-center bg-white">
+      <div className="w-full sm:w-1/2 relative flex h-full items-center justify-center bg-white">
         <form
           onSubmit={onsubmitHandler}
-          className="w-full max-w-md px-6 py-8 sm:px-8 sm:py-10"
+          className="w-full max-w-md relative px-6 py-8 sm:px-8 sm:py-10"
         >
           {/* Logo + Branding */}
-          <Link href="/" className="flex items-center gap-2 mb-6">
+          <Link href="/" className="flex relative items-center gap-2 mb-6">
             <Image
               src={data.Icon}
-              className="h-[30px] w-[30px] hover:rotate-180 duration-1000"
+              className="h-[20px] w-[20px] hover:rotate-180 duration-1000"
               alt="Logo"
             />
-            <span className="text-2xl font-bold text-gray-800">HireMate.</span>
+              <p className="text-xl">HireMate.</p> <p className="text-[12px] absolute left-28 bottom-4">Admin <span className="text-green-500"> portal</span></p>
           </Link>
+
+
 
           {/* Heading */}
           <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-6">

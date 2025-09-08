@@ -19,15 +19,9 @@ import { useRouter } from "next/navigation";
 const Page = () => {
   const { url } = useContext(AppContext);
   const [jobData, setJobData] = useState([]);
-  const [recruiterId, setRecruiterId] = useState("");
-  const [recruiterName, setRecruiterName] = useState("");
   const router = useRouter();
   const adminName = localStorage.getItem("adminUserName");
-  // Get recruiter info from localStorage
-  useEffect(() => {
-    setRecruiterId(localStorage.getItem("recruiterId") || "");
-    setRecruiterName(localStorage.getItem("nameR") || "");
-  }, []);
+  const {adminId} = useContext(AppContext);
 
   const handleDelete = async (id) => {
     try {
@@ -45,7 +39,7 @@ const Page = () => {
     }
   };
 
-  const logoutAmin = async () => {
+  const logoutAdmin = async () => {
     try {
       const response = await axios.post(
         `/api/auth/admin/logout`,
@@ -55,6 +49,7 @@ const Page = () => {
       if (response.data.success) {
         Cookies.remove("adminToken");
         localStorage.removeItem("adminUserName");
+        localStorage.removeItem("adminId");
         toast.success("Logout Successfully");
         window.location.href = "/";
         router.push("/");
@@ -66,11 +61,11 @@ const Page = () => {
   };
 
   const getJobs = async () => {
-    if (!recruiterId) return;
+    if (!adminId) return;
 
     try {
       const response = await axios.get(
-        `${url}/api/job/get-jobs/${recruiterId.trim()}`,
+        `${url}/api/job/get-jobs/${adminId.trim()}`,
         { withCredentials: true }
       );
       if (response.data.success) {
@@ -83,10 +78,10 @@ const Page = () => {
   };
 
   useEffect(() => {
-    if (recruiterId) {
+    if (adminId) {
       getJobs();
     }
-  }, [recruiterId]);
+  }, [adminId]);
 
   const stats = [
     {
@@ -213,7 +208,7 @@ const Page = () => {
                     className="ml-1 text-gray-500 md:inline cursor-pointer"
                   />
                   <button
-                    onClick={() => logoutAmin()}
+                    onClick={() => logoutAdmin()}
                     className="absolute top-7 right-0 hidden group-hover:block bg-gray-200 p-2 rounded-lg shadow hover:bg-gray-300 transition"
                   >
                     Logout

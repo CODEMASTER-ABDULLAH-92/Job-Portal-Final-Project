@@ -52,7 +52,9 @@ const SignUp = () => {
         setUserName("");
         setCountryCode("+1");
         setMobile("");
-
+        localStorage.setItem("userId", response.data.User._id);
+        localStorage.setItem("userName", response.data.User.userName);
+        
         toast.success(response.data.message);
         router.push("/");
       }

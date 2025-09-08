@@ -118,6 +118,7 @@ const AddJobPage = () => {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
+
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-3">
             {showPreview ? "Job Preview" : "Add New Job"}
@@ -212,93 +213,112 @@ const AddJobPage = () => {
             </div>
           </div>
         ) : (
+          // ==============
           /* FORM SECTION */
+          // ==============
           <form
             onSubmit={handleSubmit}
             className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200 p-8"
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-<div>
-  <label className="block text-gray-700 font-medium mb-2">
-    Job Title*
-  </label>
-  <select
-    name="jobName"
-    value={formData.jobName}
-    onChange={handleChange}
-    required
-    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#B9FF66] focus:border-[#B9FF66] outline-none transition"
-  >
-    <option value="">-- Select a Job Title --</option>
-    <option value="Software Engineer">Software Engineer</option>
-    <option value="Frontend Developer">Frontend Developer</option>
-    <option value="Backend Developer">Backend Developer</option>
-    <option value="Full Stack Developer">Full Stack Developer</option>
-    <option value="DevOps Engineer">DevOps Engineer</option>
-    <option value="Data Scientist">Data Scientist</option>
-    <option value="Machine Learning Engineer">Machine Learning Engineer</option>
-    <option value="Mobile App Developer">Mobile App Developer</option>
-    <option value="UI/UX Designer">UI/UX Designer</option>
-    <option value="Product Manager">Product Manager</option>
-    <option value="QA Engineer">QA Engineer</option>
-    <option value="Business Analyst">Business Analyst</option>
-    <option value="Database Administrator">Database Administrator</option>
-    <option value="System Administrator">System Administrator</option>
-    <option value="Cloud Engineer">Cloud Engineer</option>
-    <option value="Cybersecurity Specialist">Cybersecurity Specialist</option>
-    <option value="Network Engineer">Network Engineer</option>
-    <option value="Game Developer">Game Developer</option>
-    <option value="Embedded Systems Engineer">Embedded Systems Engineer</option>
-    <option value="AI Engineer">AI Engineer</option>
-    <option value="Data Engineer">Data Engineer</option>
-    <option value="Research Scientist">Research Scientist</option>
-    <option value="Blockchain Developer">Blockchain Developer</option>
-    <option value="Technical Writer">Technical Writer</option>
-    <option value="IT Support Specialist">IT Support Specialist</option>
-  </select>
-</div>
+              <div>
+                <label className="block text-gray-700 font-medium mb-2">
+                  Job Title*
+                </label>
+                <select
+                  name="jobName"
+                  value={formData.jobName}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#B9FF66] focus:border-[#B9FF66] outline-none transition"
+                >
+                  <option value="">-- Select a Job Title --</option>
+                  <option value="Software Engineer">Software Engineer</option>
+                  <option value="Frontend Developer">Frontend Developer</option>
+                  <option value="Backend Developer">Backend Developer</option>
+                  <option value="Full Stack Developer">
+                    Full Stack Developer
+                  </option>
+                  <option value="DevOps Engineer">DevOps Engineer</option>
+                  <option value="Data Scientist">Data Scientist</option>
+                  <option value="Machine Learning Engineer">
+                    Machine Learning Engineer
+                  </option>
+                  <option value="Mobile App Developer">
+                    Mobile App Developer
+                  </option>
+                  <option value="UI/UX Designer">UI/UX Designer</option>
+                  <option value="Product Manager">Product Manager</option>
+                  <option value="QA Engineer">QA Engineer</option>
+                  <option value="Business Analyst">Business Analyst</option>
+                  <option value="Database Administrator">
+                    Database Administrator
+                  </option>
+                  <option value="System Administrator">
+                    System Administrator
+                  </option>
+                  <option value="Cloud Engineer">Cloud Engineer</option>
+                  <option value="Cybersecurity Specialist">
+                    Cybersecurity Specialist
+                  </option>
+                  <option value="Network Engineer">Network Engineer</option>
+                  <option value="Game Developer">Game Developer</option>
+                  <option value="Embedded Systems Engineer">
+                    Embedded Systems Engineer
+                  </option>
+                  <option value="AI Engineer">AI Engineer</option>
+                  <option value="Data Engineer">Data Engineer</option>
+                  <option value="Research Scientist">Research Scientist</option>
+                  <option value="Blockchain Developer">
+                    Blockchain Developer
+                  </option>
+                  <option value="Technical Writer">Technical Writer</option>
+                  <option value="IT Support Specialist">
+                    IT Support Specialist
+                  </option>
+                </select>
+              </div>
 
-
-
-<div>
-  <label className="block text-gray-700 font-medium mb-2">
-    Location*
-  </label>
-  <select
-    name="location"
-    value={formData.location}
-    onChange={handleChange}
-    required
-    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#B9FF66] focus:border-[#B9FF66] outline-none transition"
-  >
-    <option value="">-- Select a Country --</option>
-    <option value="United States">United States</option>
-    <option value="Canada">Canada</option>
-    <option value="United Kingdom">United Kingdom</option>
-    <option value="Germany">Germany</option>
-    <option value="France">France</option>
-    <option value="Italy">Italy</option>
-    <option value="Spain">Spain</option>
-    <option value="Netherlands">Netherlands</option>
-    <option value="Sweden">Sweden</option>
-    <option value="Australia">Australia</option>
-    <option value="New Zealand">New Zealand</option>
-    <option value="India">India</option>
-    <option value="Pakistan">Pakistan</option>
-    <option value="China">China</option>
-    <option value="Japan">Japan</option>
-    <option value="South Korea">South Korea</option>
-    <option value="Singapore">Singapore</option>
-    <option value="United Arab Emirates">United Arab Emirates</option>
-    <option value="Saudi Arabia">Saudi Arabia</option>
-    <option value="Brazil">Brazil</option>
-    <option value="Mexico">Mexico</option>
-    <option value="South Africa">South Africa</option>
-    <option value="Nigeria">Nigeria</option>
-    <option value="Russia">Russia</option>
-  </select>
-</div>
-
+              <div>
+                <label className="block text-gray-700 font-medium mb-2">
+                  Location*
+                </label>
+                <select
+                  name="location"
+                  value={formData.location}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#B9FF66] focus:border-[#B9FF66] outline-none transition"
+                >
+                  <option value="">-- Select a Country --</option>
+                  <option value="United States">United States</option>
+                  <option value="Canada">Canada</option>
+                  <option value="United Kingdom">United Kingdom</option>
+                  <option value="Germany">Germany</option>
+                  <option value="France">France</option>
+                  <option value="Italy">Italy</option>
+                  <option value="Spain">Spain</option>
+                  <option value="Netherlands">Netherlands</option>
+                  <option value="Sweden">Sweden</option>
+                  <option value="Australia">Australia</option>
+                  <option value="New Zealand">New Zealand</option>
+                  <option value="India">India</option>
+                  <option value="Pakistan">Pakistan</option>
+                  <option value="China">China</option>
+                  <option value="Japan">Japan</option>
+                  <option value="South Korea">South Korea</option>
+                  <option value="Singapore">Singapore</option>
+                  <option value="United Arab Emirates">
+                    United Arab Emirates
+                  </option>
+                  <option value="Saudi Arabia">Saudi Arabia</option>
+                  <option value="Brazil">Brazil</option>
+                  <option value="Mexico">Mexico</option>
+                  <option value="South Africa">South Africa</option>
+                  <option value="Nigeria">Nigeria</option>
+                  <option value="Russia">Russia</option>
+                </select>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">

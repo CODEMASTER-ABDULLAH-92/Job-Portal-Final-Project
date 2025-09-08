@@ -32,6 +32,8 @@ const Login = () => {
         setPassword("");
         toast.success(response.data.message || "Login successful!");
         router.push("/");
+        localStorage.setItem("userName", response.data.User.userName);
+        localStorage.setItem("userId", response.data.User._id);
       } else {
         toast.error(response.data.message || "Login failed. Please try again.");
       }

@@ -43,6 +43,8 @@ const Page = () => {
         toast.success("Admin Registered Successfully");
         router.push("/DashBoard/adminDashboard");
         localStorage.setItem("adminUserName", response.data.admin.userName);
+        localStorage.setItem("adminId", response.data.admin._id);
+        
       }
     } catch (error) {
       console.error("Error in admin register", error);
@@ -67,15 +69,16 @@ const Page = () => {
           onSubmit={onsubmitHandler}
           className="w-full max-w-md px-6 py-8 sm:px-8 sm:py-10"
         >
-          {/* Logo + Branding */}
-          <Link href="/" className="flex items-center gap-2 mb-6">
+  {/* Logo + Branding */}
+          <Link href="/" className="flex relative items-center gap-2 mb-6">
             <Image
               src={data.Icon}
-              className="h-[30px] w-[30px] hover:rotate-180 duration-1000"
+              className="h-[20px] w-[20px] hover:rotate-180 duration-1000"
               alt="Logo"
             />
-            <span className="text-2xl font-bold text-gray-800">HireMate.</span>
+              <p className="text-xl">HireMate.</p> <p className="text-[12px] absolute left-28 bottom-4">Admin <span className="text-green-500"> portal</span></p>
           </Link>
+
 
           {/* Heading */}
           <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-6">

@@ -59,9 +59,6 @@ export async function POST(request: Request) {
     // ✅ Store JWT in cookies
     const cookieStore = await cookies();
     cookieStore.set("userToken", userToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
       maxAge: 7 * 24 * 60 * 60, // 7 days
       path: "/",
     });

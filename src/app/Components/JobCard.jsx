@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Dot } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -17,20 +17,27 @@ const JobCard = ({
   id,
 }) => {
   const [isFilled, setIsFilled] = useState(false);
-  const { userProfile, token , jobData} = useContext(AppContext) || {};
+  const { userProfile, token } = useContext(AppContext);
   const router = useRouter();
+
+  // Debug context updates
+  useEffect(() => {
+    console.log("JobCard userProfile updated:", userProfile);
+  }, [userProfile]);
 
   const checkUserStatus = () => {
     if (!token) {
       toast.error("Login First");
       return router.push("/login");
     }
+
     if (!userProfile) {
       toast.error("Complete Your Profile for Job Apply");
       return router.push("/gettinguserdata/personalInfo");
     }
+
     toast.success("Thanks for Applying this Job");
-    router.push(`/apply/${id}`);
+    router.push(`/jobs`);
   };
 
   return (
@@ -70,9 +77,7 @@ const JobCard = ({
         </div>
 
         {/* Description */}
-        <p className="text-gray-800 text-sm mb-4 line-clamp-3">
-          {description}
-        </p>
+        <p className="text-gray-800 text-sm mb-4 line-clamp-3">{description}</p>
       </div>
 
       {/* Salary and Time */}
@@ -97,6 +102,7 @@ const JobCard = ({
           onClick={checkUserStatus}
           className="w-1/2 text-center text-white bg-green-600 hover:bg-green-700 rounded-md py-2 text-sm transition"
         >
+          {/* If token is true but userProfile is null/false -> show Apply Now */}
           {token && userProfile ? "Easy Apply" : "Apply Now"}
         </button>
       </div>

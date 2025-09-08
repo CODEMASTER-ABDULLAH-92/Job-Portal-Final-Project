@@ -79,7 +79,6 @@ export async function POST(request: Request) {
 
     const cookieStore = await cookies();
     cookieStore.set("adminToken", adminToken,{
-        httpOnly:true,
         maxAge:7 * 24 * 60 * 60,
         path:"/"
     })

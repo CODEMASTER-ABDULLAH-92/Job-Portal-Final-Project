@@ -39,11 +39,8 @@ export async function POST(request: Request) {
     // Set cookie
     const cookieStore = await cookies();
     cookieStore.set("adminToken", adminToken, {
-      httpOnly: true,
       maxAge: 7 * 24 * 60 * 60, // 7 days in seconds
       path: "/", // important for Next.js cookies
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
     });
 
     // Return response

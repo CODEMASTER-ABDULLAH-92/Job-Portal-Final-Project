@@ -167,11 +167,11 @@ const JobsSections = () => {
   }, [selectedJobTypes, selectedLocations, selectedCategories]);
 
   return (
-    <div className="mx-auto max-w-6xl">
+    <div className=" max-w-6xl">
       <Navbar />
-      <div className="flex justify-between gap-5 mt-5">
+      <div className="flex mx-5 justify-between gap-5 mt-5">
         {/* Filters */}
-        <div className="md:min-w-[23%] sm:block hidden bg-white py-3 px-3 rounded-lg h-full shadow-md">
+        <div className="md:min-w-[23%] min-w-[30%] sm:block hidden bg-white py-3 px-3 rounded-lg h-full shadow-md">
           {/* Job Type */}
           <div ref={jobTypeRef}>
             <div className="flex justify-between items-center cursor-pointer" onClick={() => setHideJobType(!hideJobType)}>

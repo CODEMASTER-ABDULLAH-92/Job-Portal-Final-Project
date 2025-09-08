@@ -1,7 +1,8 @@
 "use client";
-import { useState, useEffect } from 'react';
-import { useEditor, EditorContent } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
+import { useState, useEffect } from "react";
+import { useEditor, EditorContent } from "@tiptap/react";
+import toast from "react-hot-toast";
+import StarterKit from "@tiptap/starter-kit";
 import {
   FaBriefcase,
   FaMapMarkerAlt,
@@ -10,72 +11,132 @@ import {
   FaTasks,
   FaCheckCircle,
   FaEye,
-  FaFileAlt,
-  FaSave,
-  FaPaperPlane
-} from 'react-icons/fa';
+  FaPaperPlane,
+} from "react-icons/fa";
+import axios from "axios";
+import { useParams } from "next/navigation";
 
 const AddJobPage = () => {
+  // ---------------- STATE ----------------
   const [formData, setFormData] = useState({
-    jobName: '',
-    location: '',
-    description: '<p></p>',
-    jobStatus: 'Remote',
-    jobType: 'Full-time',
-    salary: '',
-    experienceLevel: 'Mid-Level',
-    responsibilities: '',
-    requirements: '',
+    jobName: "",
+    location: "",
+    description: "<p></p>",
+    jobStatus: "Remote",
+    jobType: "Full-time",
+    salary: "",
+    experienceLevel: "Mid-Level",
+    responsibilities: "",
+    requirements: "",
   });
 
-  const [showPreview, setShowPreview] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
+  const { id } = useParams(); // job id from URL
+  const [showPreview, setShowPreview] = useState(false); // toggle between form and preview
+  const [isMounted, setIsMounted] = useState(false); // avoid SSR hydration errors
 
-  // Initialize editor only on client side
+  // ---------------- API CALL: UPDATE JOB ----------------
+  const updateTheJob = async (e) => {
+    e.preventDefault();
+
+    try {
+      // sending plain JSON (not FormData)
+      const response = await axios.put(
+        `/api/Job/updateJob/${id}`,
+        formData,
+        {
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true,
+        }
+      );
+
+      if (response.data.success) {
+        toast.success("Job Updated Successfully");
+      }
+    } catch (error) {
+      console.error("Error in updating job", error);
+      toast.error("Job update failed");
+    }
+  };
+
+  // ---------------- API CALL: GET JOB DATA ----------------
+  const getJobData = async () => {
+    try {
+      const response = await axios.get(`/api/Job/getsingleJob/${id}`, {
+        withCredentials: true,
+      });
+
+      if (response.data.success) {
+        setFormData({
+          jobName: response.data.singlePost.jobName || "",
+          location: response.data.singlePost.location || "",
+          description: response.data.singlePost.description || "<p></p>",
+          jobStatus: response.data.singlePost.jobStatus || "Remote",
+          jobType: response.data.singlePost.jobType || "Full-time",
+          salary: response.data.singlePost.salary || "",
+          experienceLevel: response.data.singlePost.experienceLevel || "Mid-Level",
+          responsibilities: response.data.singlePost.responsibilities || "",
+          requirements: response.data.singlePost.requirements || "",
+        });
+        console.log("Job data loaded:", response.data.singlePost);
+      }
+    } catch (error) {
+      console.error("Error fetching job data", error);
+    }
+  };
+
+  // load job data on mount
+  useEffect(() => {
+    getJobData();
+  }, []);
+
+  // ---------------- TIPTAP EDITOR ----------------
   const editor = useEditor({
     extensions: [StarterKit],
     content: formData.description,
     onUpdate: ({ editor }) => {
-      setFormData(prev => ({
+      // sync editor content to state
+      setFormData((prev) => ({
         ...prev,
-        description: editor.getHTML()
+        description: editor.getHTML(),
       }));
     },
     editorProps: {
       attributes: {
-        class: 'prose focus:outline-none min-h-[200px] p-2',
+        class: "prose focus:outline-none min-h-[200px] p-2",
       },
     },
-    immediatelyRender: false // Explicitly disable SSR rendering
+    immediatelyRender: false, // prevent SSR rendering mismatch
   });
 
   useEffect(() => {
     setIsMounted(true);
     return () => {
       if (editor) {
-        editor.destroy();
+        editor.destroy(); // cleanup editor on unmount
       }
     };
   }, [editor]);
 
+  // ---------------- HANDLERS ----------------
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
+  // convert multiline text (requirements, responsibilities) to array
   const textToArray = (text) => {
-    return text.split('\n').filter(item => item.trim() !== '');
+    return text.split("\n").filter((item) => item.trim() !== "");
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log('Job submitted:', formData);
-    // Add your submission logic here
+  // used in preview's submit button
+  const handleSubmit = () => {
+    updateTheJob(new Event("submit")); // trigger job update
   };
 
+  // ---------------- LOADING STATE ----------------
   if (!isMounted) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -84,30 +145,36 @@ const AddJobPage = () => {
     );
   }
 
+  // ---------------- RENDER ----------------
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-3">
-            {showPreview ? 'Job Preview' : 'Update the Job'}
+            {showPreview ? "Job Preview" : "Update the Job"}
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            {showPreview ? 'Review your job posting before submission' : 'Fill in the details for your new job posting'}
+            {showPreview
+              ? "Review your job posting before submission"
+              : "Fill in the details for your job posting"}
           </p>
         </div>
 
+        {/* ---------------- PREVIEW SECTION ---------------- */}
         {showPreview ? (
-          /* PREVIEW SECTION */
           <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200 p-8">
+            {/* Job header */}
             <div className="mb-8">
-              <h2 className="text-3xl font-bold text-gray-800 mb-2">{formData.jobName || 'Job Title'}</h2>
+              <h2 className="text-3xl font-bold text-gray-800 mb-2">
+                {formData.jobName || "Job Title"}
+              </h2>
               <div className="flex flex-wrap items-center gap-4 text-gray-600">
                 <span className="flex items-center gap-2">
                   <FaBriefcase /> {formData.jobType}
                 </span>
                 <span className="flex items-center gap-2">
-                  <FaMapMarkerAlt /> {formData.location || 'Location'}
+                  <FaMapMarkerAlt /> {formData.location || "Location"}
                 </span>
                 <span className="flex items-center gap-2">
                   <FaUserTie /> {formData.experienceLevel}
@@ -120,14 +187,18 @@ const AddJobPage = () => {
               </div>
             </div>
 
+            {/* Description */}
             <div className="mb-8">
-              <h3 className="text-xl font-semibold text-gray-800 mb-4">Job Description</h3>
-              <div 
+              <h3 className="text-xl font-semibold text-gray-800 mb-4">
+                Job Description
+              </h3>
+              <div
                 className="prose max-w-none text-gray-700"
                 dangerouslySetInnerHTML={{ __html: formData.description }}
               />
             </div>
 
+            {/* Responsibilities */}
             {formData.responsibilities && (
               <div className="mb-8">
                 <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
@@ -144,6 +215,7 @@ const AddJobPage = () => {
               </div>
             )}
 
+            {/* Requirements */}
             {formData.requirements && (
               <div className="mb-8">
                 <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
@@ -160,6 +232,7 @@ const AddJobPage = () => {
               </div>
             )}
 
+            {/* Buttons */}
             <div className="flex justify-end gap-4 pt-6 border-t border-gray-200">
               <button
                 onClick={() => setShowPreview(false)}
@@ -176,11 +249,17 @@ const AddJobPage = () => {
             </div>
           </div>
         ) : (
-          /* FORM SECTION */
-          <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200 p-8">
+          /* ---------------- FORM SECTION ---------------- */
+          <form
+            onSubmit={updateTheJob}
+            className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200 p-8"
+          >
+            {/* Job title + location */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <div>
-                <label className="block text-gray-700 font-medium mb-2">Job Title*</label>
+                <label className="block text-gray-700 font-medium mb-2">
+                  Job Title*
+                </label>
                 <input
                   type="text"
                   name="jobName"
@@ -191,7 +270,9 @@ const AddJobPage = () => {
                 />
               </div>
               <div>
-                <label className="block text-gray-700 font-medium mb-2">Location*</label>
+                <label className="block text-gray-700 font-medium mb-2">
+                  Location*
+                </label>
                 <input
                   type="text"
                   name="location"
@@ -203,9 +284,12 @@ const AddJobPage = () => {
               </div>
             </div>
 
+            {/* Job type, mode, experience */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
               <div>
-                <label className="block text-gray-700 font-medium mb-2">Job Type*</label>
+                <label className="block text-gray-700 font-medium mb-2">
+                  Job Type*
+                </label>
                 <select
                   name="jobType"
                   value={formData.jobType}
@@ -219,7 +303,9 @@ const AddJobPage = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-gray-700 font-medium mb-2">Work Mode*</label>
+                <label className="block text-gray-700 font-medium mb-2">
+                  Work Mode*
+                </label>
                 <select
                   name="jobStatus"
                   value={formData.jobStatus}
@@ -232,7 +318,9 @@ const AddJobPage = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-gray-700 font-medium mb-2">Experience Level*</label>
+                <label className="block text-gray-700 font-medium mb-2">
+                  Experience Level*
+                </label>
                 <select
                   name="experienceLevel"
                   value={formData.experienceLevel}
@@ -246,8 +334,11 @@ const AddJobPage = () => {
               </div>
             </div>
 
+            {/* Salary */}
             <div className="mb-6">
-              <label className="block text-gray-700 font-medium mb-2">Salary (USD)</label>
+              <label className="block text-gray-700 font-medium mb-2">
+                Salary (USD)
+              </label>
               <input
                 type="text"
                 name="salary"
@@ -258,15 +349,26 @@ const AddJobPage = () => {
               />
             </div>
 
+            {/* Job description */}
             <div className="mb-6">
-              <label className="block text-gray-700 font-medium mb-2">Job Description*</label>
+              <label className="block text-gray-700 font-medium mb-2">
+                Job Description*
+              </label>
               <div className="border border-gray-300 rounded-lg overflow-hidden">
-                {editor && <EditorContent editor={editor} className="min-h-[200px] p-2" />}
+                {editor && (
+                  <EditorContent
+                    editor={editor}
+                    className="min-h-[200px] p-2"
+                  />
+                )}
               </div>
             </div>
 
+            {/* Responsibilities */}
             <div className="mb-6">
-              <label className="block text-gray-700 font-medium mb-2">Responsibilities (one per line)*</label>
+              <label className="block text-gray-700 font-medium mb-2">
+                Responsibilities (one per line)*
+              </label>
               <textarea
                 name="responsibilities"
                 value={formData.responsibilities}
@@ -277,8 +379,11 @@ const AddJobPage = () => {
               />
             </div>
 
+            {/* Requirements */}
             <div className="mb-6">
-              <label className="block text-gray-700 font-medium mb-2">Requirements (one per line)*</label>
+              <label className="block text-gray-700 font-medium mb-2">
+                Requirements (one per line)*
+              </label>
               <textarea
                 name="requirements"
                 value={formData.requirements}
@@ -289,6 +394,7 @@ const AddJobPage = () => {
               />
             </div>
 
+            {/* Buttons */}
             <div className="flex justify-end gap-4 pt-6 border-t border-gray-200">
               <button
                 type="button"
@@ -296,12 +402,6 @@ const AddJobPage = () => {
                 className="flex items-center justify-center gap-2 bg-[#B9FF66] hover:bg-[#A5E55C] text-gray-900 font-medium py-2 px-4 rounded-lg transition shadow-md hover:shadow-lg"
               >
                 <FaEye /> Preview
-              </button>
-              <button
-                type="button"
-                className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition shadow-md hover:shadow-lg"
-              >
-                <FaSave /> Save Draft
               </button>
               <button
                 type="submit"

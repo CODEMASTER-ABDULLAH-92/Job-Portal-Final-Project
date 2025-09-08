@@ -4,6 +4,8 @@ import Link from "next/link";
 import { UploadCloud, File, X } from "lucide-react";
 import { Home, MapPin, Globe } from "lucide-react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import axios from "axios";
+import toast from "react-hot-toast";
 
 const Address = () => {
   // Dropdown options
@@ -51,7 +53,7 @@ const Address = () => {
 
   // Form state
   const [formData, setFormData] = useState({
-    country: "",
+    countryName: "",
     province: "",
     district: "",
     city: "",
@@ -64,11 +66,43 @@ const Address = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = (e) => {
+  const uId = localStorage.getItem("userId");
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
-    // Form submission logic would go here
-  };
+    try {
+      const formDataTosend = new FormData();
+      formDataTosend.append("userId", uId);
+      formDataTosend.append("countryName", formData.countryName);
+    formDataTosend.append("province", formData.province);
+    formDataTosend.append("district", formData.district);
+    formDataTosend.append("city", formData.city);
+    formDataTosend.append("fullAddress", formData.fullAddress);
+
+    const response = await axios.post(
+      "/api/userCompleteInfo/addUserDetails",
+      formDataTosend,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+        withCredentials: true,
+      }
+    );
+
+    if (response.data.success) {
+      setFormData({
+        countryName: "",
+        province: "",
+        district: "",
+        city: "",
+        fullAddress: "",
+      });
+      toast.success("Address details added successfully ✅");
+    }
+  } catch (error) {
+    console.error("Err in adding address", error);
+    toast.error("Err in adding address");
+  }
+};
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4 sm:px-6 lg:px-8">
@@ -99,8 +133,8 @@ const Address = () => {
                   Country <span className="text-red-500">*</span>
                 </label>
                 <select
-                  name="country"
-                  value={formData.country}
+                  name="countryName"
+                  value={formData.countryName}
                   onChange={handleInputChange}
                   className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#B9FF66] focus:border-[#B9FF66] outline-none transition appearance-none"
                   required

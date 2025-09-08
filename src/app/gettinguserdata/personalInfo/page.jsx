@@ -1,9 +1,11 @@
-"use client"
-import React, { useState, useRef } from "react";
+"use client";
+import React, { useState, useRef,useEffect } from "react";
 import Link from "next/link";
 import { UploadCloud, File, X } from "lucide-react";
-import { Phone, Calendar, Home, DollarSign, CreditCard } from 'lucide-react';
+import { Phone, Calendar, Home, DollarSign, CreditCard } from "lucide-react";
 import { User, UserCircle, BookOpen, School } from "lucide-react";
+import axios from "axios";
+import toast from "react-hot-toast";
 
 const PersonalDetail = () => {
   const religion = [
@@ -16,7 +18,7 @@ const PersonalDetail = () => {
     "Atheism",
     "Other",
   ];
-  
+
   const institutes = [
     "Primary School",
     "Middle School",
@@ -26,7 +28,7 @@ const PersonalDetail = () => {
     "Technical Institute",
     "Vocational Training Center",
   ];
-  
+
   const disciplines = [
     "Computer Science",
     "Software Engineering",
@@ -39,7 +41,7 @@ const PersonalDetail = () => {
     "Business Administration",
     "Medicine",
   ];
-  
+
   const universities = [
     "Harvard University",
     "Stanford University",
@@ -52,7 +54,7 @@ const PersonalDetail = () => {
     "University of the Punjab",
     "FAST-NUCES",
   ];
-  
+
   const degreeTitles = [
     "BSCS - Computer Science",
     "BSSE - Software Engineering",
@@ -62,7 +64,7 @@ const PersonalDetail = () => {
     "BEEE - Electrical Engineering",
     "BS Data Science",
   ];
-  
+
   const domiciles = [
     "Lahore",
     "Faisalabad",
@@ -75,44 +77,102 @@ const PersonalDetail = () => {
     "Gujranwala",
     "Hyderabad",
   ];
-    
+
   const [file, setFile] = useState(null);
   const fileInputRef = useRef(null);
 
   const [formData, setFormData] = useState({
+    userId:"", // e.g., from JWT or context
     firstName: "",
     lastName: "",
     religion: "",
     contactNumber: "",
-    currentInstituteLevel: "",
-    dateOfAddmission: "",
-    programFaculty: "",
+
+    instituteType: "",
+    dateOfAdmission: "", // Date as string (use Date object if needed)
+    programDiscipline: "",
     universityName: "",
-    profileImage: null,
-    dateOfBirth: "",
+    dateOfBirth: "", // Date as string (use Date object if needed)
     domicle: "",
     familyIncome: "",
-    passportNumber: "",
+    passportNumber: "", // optional → keep as empty string
+    profileImage: null, // optional → keep as null or string when uploaded
   });
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     setFile(selectedFile);
-    setFormData(prev => ({ ...prev, profileImage: selectedFile }));
+    setFormData((prev) => ({ ...prev, profileImage: selectedFile }));
   };
 
   const onChangeHandler = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
   };
-
-  const onSubmitHandler = (e) => {
+   const [userId, setUserId] = useState("");
+  useEffect(() => {
+    const storedUserId = localStorage.getItem("userId");
+    if (storedUserId) {
+      setUserId(storedUserId);
+    }
+  }, []);
+//  const uId = localStorage.getItem("userId");
+  const onSubmitHandler = async (e) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
-    // Form submission logic would go here
+    try {
+      const formDataToSend = new FormData();
+formDataToSend.append("userId", userId); // e.g., from JWT or context
+formDataToSend.append("firstName", formData.firstName);
+formDataToSend.append("lastName", formData.lastName);
+formDataToSend.append("religion", formData.religion);
+formDataToSend.append("contactNumber", formData.contactNumber);
+formDataToSend.append("instituteType", formData.instituteType);
+formDataToSend.append("dateOfAdmission", formData.dateOfAdmission);
+formDataToSend.append("programDiscipline", formData.programDiscipline);
+formDataToSend.append("universityName", formData.universityName);
+formDataToSend.append("dateOfBirth", formData.dateOfBirth);
+formDataToSend.append("domicle", formData.domicle);
+formDataToSend.append("familyIncome", formData.familyIncome);
+
+if (formData.passportNumber) {
+  formDataToSend.append("passportNumber", formData.passportNumber);
+}
+if (formData.profileImage) {
+  formDataToSend.append("profileImage", formData.profileImage);
+}
+
+const response =  await axios.post("/api/userCompleteInfo/addUserDetails", formDataToSend, {
+  headers: { "Content-Type": "multipart/form-data" },
+  withCredentials: true,
+});
+
+
+      if (response.data.success) {
+        setFormData({
+          firstName: "",
+          lastName: "",
+          religion: "",
+          contactNumber: "",
+
+          instituteType: "",
+          dateOfAdmission: "", // Date as string (use Date object if needed)
+          programDiscipline: "",
+          universityName: "",
+          dateOfBirth: "", // Date as string (use Date object if needed)
+          domicle: "",
+          familyIncome: "",
+          passportNumber: "", // optional → keep as empty string
+          profileImage: null, // optional → keep as null or string when
+        });
+        toast.success("Adding user Details successfully", formData);
+      }
+    } catch (error) {
+      console.error("Err in adding user details", error);
+      toast.error("Err in adding details");
+    }
   };
 
   return (
@@ -145,7 +205,7 @@ const PersonalDetail = () => {
                     Basic Information
                   </h2>
                 </div>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   {/* First Name */}
                   <div className="space-y-2">
@@ -227,7 +287,7 @@ const PersonalDetail = () => {
                     Academic Information
                   </h2>
                 </div>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   {/* Institute */}
                   <div className="space-y-2">
@@ -258,8 +318,8 @@ const PersonalDetail = () => {
                     </label>
                     <input
                       type="date"
-                      name="dateOfAddmission"
-                      value={formData.dateOfAddmission}
+                      name="dateOfAdmission"
+                      value={formData.dateOfAdmission}
                       onChange={onChangeHandler}
                       className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#B9FF66] focus:border-[#B9FF66] outline-none transition"
                       required
@@ -310,7 +370,7 @@ const PersonalDetail = () => {
 
                   {/* Date of Birth */}
                   <div className="space-y-2">
-                    <label className="block text-gray-700 font-medium flex items-center gap-2">
+                    <label className=" text-gray-700 font-medium flex items-center gap-2">
                       <Calendar className="text-[#B9FF66]" />
                       Date of Birth <span className="text-red-500">*</span>
                     </label>
@@ -327,7 +387,7 @@ const PersonalDetail = () => {
 
                   {/* Domicile */}
                   <div className="space-y-2">
-                    <label className="block text-gray-700 font-medium flex items-center gap-2">
+                    <label className=" text-gray-700 font-medium flex items-center gap-2">
                       <Home className="text-[#B9FF66]" />
                       Domicile <span className="text-red-500">*</span>
                     </label>
@@ -349,7 +409,7 @@ const PersonalDetail = () => {
 
                   {/* Family Income */}
                   <div className="space-y-2">
-                    <label className="block text-gray-700 font-medium flex items-center gap-2">
+                    <label className=" text-gray-700 font-medium flex items-center gap-2">
                       <DollarSign className="text-[#B9FF66]" />
                       Family Income <span className="text-red-500">*</span>
                     </label>
@@ -462,7 +522,10 @@ const PersonalDetail = () => {
                       type="button"
                       onClick={() => {
                         setFile(null);
-                        setFormData(prev => ({ ...prev, profileImage: null }));
+                        setFormData((prev) => ({
+                          ...prev,
+                          profileImage: null,
+                        }));
                         if (fileInputRef.current) {
                           fileInputRef.current.value = "";
                         }
@@ -485,23 +548,41 @@ const PersonalDetail = () => {
               </div>
               <div className="p-6 space-y-4">
                 <div className="flex items-center justify-between p-2 bg-[#B9FF66]/10 rounded-lg">
-                  <span className="text-sm font-medium text-gray-700">Personal Details</span>
+                  <span className="text-sm font-medium text-gray-700">
+                    Personal Details
+                  </span>
                   <div className="w-6 h-6 rounded-full bg-[#B9FF66] flex items-center justify-center">
-                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                    <svg
+                      className="w-4 h-4 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M5 13l4 4L19 7"
+                      />
                     </svg>
                   </div>
                 </div>
                 <div className="flex items-center justify-between p-2">
-                  <span className="text-sm font-medium text-gray-500">Address Information</span>
+                  <span className="text-sm font-medium text-gray-500">
+                    Address Information
+                  </span>
                   <div className="w-6 h-6 rounded-full bg-gray-300"></div>
                 </div>
                 <div className="flex items-center justify-between p-2">
-                  <span className="text-sm font-medium text-gray-500">Education History</span>
+                  <span className="text-sm font-medium text-gray-500">
+                    Education History
+                  </span>
                   <div className="w-6 h-6 rounded-full bg-gray-300"></div>
                 </div>
                 <div className="flex items-center justify-between p-2">
-                  <span className="text-sm font-medium text-gray-500">Awards & Achievements</span>
+                  <span className="text-sm font-medium text-gray-500">
+                    Awards & Achievements
+                  </span>
                   <div className="w-6 h-6 rounded-full bg-gray-300"></div>
                 </div>
               </div>
