@@ -1,5 +1,5 @@
 "use client";
-import React, { useContext, useState , useEffect} from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { Dot } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -16,25 +16,29 @@ const JobCard = ({
   id,
 }) => {
   const [isFilled, setIsFilled] = useState(false);
-  const { userProfile, token} = useContext(AppContext) || {};
+  const { userProfile, token } = useContext(AppContext) || {};
   const router = useRouter();
 
-  
+  // ✅ Keep hooks at top level
+  useEffect(() => {
+    console.log("userProfile updated:", userProfile);
+  }, [userProfile]);
+
   const checkUserStatus = () => {
     if (!token) {
       toast.error("Login First");
       return router.push("/login");
     }
-    useEffect(() => {
-      console.log("userProfile updated:", userProfile);
-    }, [userProfile]);
+
     if (!userProfile) {
       toast.error("Complete Your Profile for Job Apply");
       return router.push("/gettinguserdata/personalInfo");
     }
+
     toast.success("Thanks for Applying this Job");
     router.push(`/jobs`);
   };
+
   return (
     <div className="bg-amber-300 rounded-xl p-6 max-h-[350px] flex flex-col justify-between">
       {/* Top Section */}

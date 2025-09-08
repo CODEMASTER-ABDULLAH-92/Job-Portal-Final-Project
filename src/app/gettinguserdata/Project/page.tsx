@@ -1,5 +1,5 @@
 "use client";
-import React, { useContext, useState } from "react";
+import React, { useContext, useState , useEffect} from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import axios from "axios";
@@ -25,7 +25,13 @@ const ProjectsForm = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const uId = localStorage.getItem("userId");
+  const [uId, setUId] = useState("");
+
+  useEffect(() => {
+    const storedId = localStorage.getItem("userId");
+    setUId(storedId);
+  }, []);
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -194,7 +200,7 @@ const ProjectsForm = () => {
                     Save
                   </button>
                   <Link
-                    href="/gettinguserdata/Skills"
+                    href={`/DashBoard/userProfile/${uId}`}
                     className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-lg transition shadow-md hover:shadow-lg"
                   >
                     Next <ChevronRight className="h-5 w-5" />

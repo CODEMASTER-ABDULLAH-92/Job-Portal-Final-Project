@@ -24,6 +24,6 @@
     ".next/types/**/*.ts",
     "**/*.ts",
     "**/*.tsx"
-  ],
+, "src/app/gettinguserdata/Educational/page.jsx"  ],
   "exclude": ["node_modules"]
 }

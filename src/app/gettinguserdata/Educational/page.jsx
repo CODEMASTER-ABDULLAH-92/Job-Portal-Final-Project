@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState , useEffect} from "react";
 import Link from "next/link";
 import {
   FaSchool,
@@ -42,7 +42,12 @@ const Educational = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const uId = localStorage.getItem("userId");
+  const [uId, setUId] = useState("");
+
+  useEffect(() => {
+    const storedId = localStorage.getItem("userId");
+    setUId(storedId);
+  }, []);
   const onSubmitHandler = async (e) => {
     e.preventDefault();
     try {

@@ -113,6 +113,8 @@ const PersonalDetail = () => {
     }));
   };
    const [userId, setUserId] = useState("");
+
+   
   useEffect(() => {
     const storedUserId = localStorage.getItem("userId");
     if (storedUserId) {

@@ -20,8 +20,13 @@ const Page = () => {
   const { url } = useContext(AppContext);
   const [jobData, setJobData] = useState([]);
   const router = useRouter();
-  const adminName = localStorage.getItem("adminUserName");
   const {adminId} = useContext(AppContext);
+ const [adminName, setadminName] = useState("");
+
+  useEffect(() => {
+    const storedId = localStorage.getItem("userId");
+    setadminName(storedId);
+  }, []);
 
   const handleDelete = async (id) => {
     try {
