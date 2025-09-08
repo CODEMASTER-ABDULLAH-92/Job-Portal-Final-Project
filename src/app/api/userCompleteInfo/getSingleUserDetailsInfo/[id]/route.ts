@@ -4,10 +4,10 @@ import { NextResponse } from "next/server";
 
 export async function GET(
   request: Request,
-  context: { params: { id: string } }
+  { params }: { params: { id: string } }
 ) {
   await dbConnect();
-  const { id } = context.params;
+  const { id } = params;
 
   try {
     const singleUserDetails = await userDetailsModel.findOne({ userId: id });
@@ -19,7 +19,6 @@ export async function GET(
       );
     }
 
-    // check if any field is missing
     const hasMissingFields =
       !singleUserDetails.firstName ||
       !singleUserDetails.lastName ||
@@ -64,7 +63,6 @@ export async function GET(
       !singleUserDetails.linkdinUrl ||
       !singleUserDetails.gitHubLink;
 
-    // status = true if all fields are filled
     const status = !hasMissingFields;
 
     return NextResponse.json({
