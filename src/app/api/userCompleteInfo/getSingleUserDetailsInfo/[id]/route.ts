@@ -1,15 +1,10 @@
 import dbConnect from "@/src/app/lib/db";
 import userDetailsModel from "@/src/app/models/userDetails.model";
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
 
-interface Params {
-  params: { id: string };
-}
-
-export async function GET(request: NextRequest, { params }: Params) {
+export async function GET(request: Request, context: any) {
   await dbConnect();
-  const { id } = params;
+  const { id } = context.params;
 
   try {
     const singleUserDetails = await userDetailsModel.findOne({ userId: id });
@@ -21,6 +16,7 @@ export async function GET(request: NextRequest, { params }: Params) {
       );
     }
 
+    // list of required fields
     const requiredFields = [
       "firstName",
       "lastName",
