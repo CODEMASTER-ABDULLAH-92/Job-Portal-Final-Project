@@ -6,36 +6,36 @@ import toast from "react-hot-toast";
 
 export const AppContext = createContext();
 
-export const AppContextProvider = ({ children }) => {
+export const AppContextProvider = (props) => {
   const [token, setToken] = useState(false);
   const [adminToken, setAdminToken] = useState(false);
-  const [userProfile, setUserProfile] = useState(null); // ⬅ start as null
+  const [userProfile, setUserProfile] = useState(null);
   const [jobData, setJobData] = useState([]);
-  const [adminId, setAdminId] = useState(null);
-
+  let adminId;
   // ✅ Check cookies inside useEffect
   useEffect(() => {
     const userToken = Cookies.get("userToken");
     console.log("User Token:", userToken);
+
     if (userToken) setToken(true);
 
     const admToken = Cookies.get("adminToken");
     console.log("Admin Token:", admToken);
     if (admToken) setAdminToken(true);
 
-    const storedAdminId = localStorage.getItem("adminId");
-    setAdminId(storedAdminId);
-
     fetchAllJobs(); // call jobs fetching
+   adminId = localStorage.getItem("adminId");
+   console.log("use",userProfile);
   }, []);
 
   useEffect(() => {
-    console.log("AppContext userProfile updated:", userProfile);
-  }, [userProfile]);
+  console.log("Context userProfile updated:", userProfile);
+}, [userProfile]);
 
   const fetchAllJobs = async () => {
     try {
       const response = await axios.get("/api/Job/getAllJobs", { withCredentials: true });
+
       if (response.data.success) {
         setJobData(response.data.jobs);
         toast.success("Fetched all jobs");
@@ -47,14 +47,9 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
-  const value = {
-    jobData,
-    userProfile,
-    setUserProfile,
-    token,
-    adminToken,
-    adminId,
-  };
+  const value = { jobData, userProfile, token, adminToken, adminId,setUserProfile};
 
-  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
+  return (
+    <AppContext.Provider value={value}>{props.children}</AppContext.Provider>
+  );
 };

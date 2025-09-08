@@ -146,11 +146,7 @@ const page = () => {
             response.data.singleUserDetails.UniversityschoolObtaintedMarks,
         });
         toast.success("Getting Data Successfully");
-    setUserProfile(response.data.status)
-setUserProfile(response.data.status);
-console.log("Status set:", response.data.status);
-
-  setUserProfile(response.data.status);
+  setUserProfile(response.data.status)
   console.log("Just called setUserProfile with:", response.data.status);
   console.log("Current userProfile (still old):", userProfile);
 
