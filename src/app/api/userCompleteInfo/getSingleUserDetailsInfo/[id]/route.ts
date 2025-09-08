@@ -1,11 +1,13 @@
 import dbConnect from "@/src/app/lib/db";
 import userDetailsModel from "@/src/app/models/userDetails.model";
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+interface Params {
+  params: { id: string };
+}
+
+export async function GET(request: NextRequest, { params }: Params) {
   await dbConnect();
   const { id } = params;
 
@@ -19,49 +21,54 @@ export async function GET(
       );
     }
 
-    const hasMissingFields =
-      !singleUserDetails.firstName ||
-      !singleUserDetails.lastName ||
-      !singleUserDetails.religion ||
-      !singleUserDetails.contactNumber ||
-      !singleUserDetails.instituteType ||
-      !singleUserDetails.dateOfAdmission ||
-      !singleUserDetails.programDiscipline ||
-      !singleUserDetails.universityName ||
-      !singleUserDetails.dateOfBirth ||
-      !singleUserDetails.domicle ||
-      !singleUserDetails.familyIncome ||
-      !singleUserDetails.passportNumber ||
-      !singleUserDetails.profileImage ||
-      !singleUserDetails.countryName ||
-      !singleUserDetails.province ||
-      !singleUserDetails.district ||
-      !singleUserDetails.city ||
-      !singleUserDetails.fullAddress ||
-      !singleUserDetails.programLevel ||
-      !singleUserDetails.instituteName ||
-      !singleUserDetails.schoolDiscipline ||
-      !singleUserDetails.schoolObtaintedMarks ||
-      !singleUserDetails.schoolTotalMarks ||
-      !singleUserDetails.percentageOfMarks ||
-      !singleUserDetails.secondaryProgramLevel ||
-      !singleUserDetails.secondaryInstituteName ||
-      !singleUserDetails.secondaryDiscipline ||
-      !singleUserDetails.secondaryObtaintedMarks ||
-      !singleUserDetails.secondaryTotalMarks ||
-      !singleUserDetails.secondaryPercentageOfMarks ||
-      !singleUserDetails.UniversityprogramLevel ||
-      !singleUserDetails.UniversityinstituteName ||
-      !singleUserDetails.UniversityschoolDiscipline ||
-      !singleUserDetails.UniversityschoolObtaintedMarks ||
-      !singleUserDetails.UniversityschoolTotalMarks ||
-      !singleUserDetails.UniversitypercentageOfMarks ||
-      !singleUserDetails.projectTitle ||
-      !singleUserDetails.projectDescription ||
-      !singleUserDetails.technologiesUsed ||
-      !singleUserDetails.liveUrl ||
-      !singleUserDetails.linkdinUrl ||
-      !singleUserDetails.gitHubLink;
+    const requiredFields = [
+      "firstName",
+      "lastName",
+      "religion",
+      "contactNumber",
+      "instituteType",
+      "dateOfAdmission",
+      "programDiscipline",
+      "universityName",
+      "dateOfBirth",
+      "domicle",
+      "familyIncome",
+      "passportNumber",
+      "profileImage",
+      "countryName",
+      "province",
+      "district",
+      "city",
+      "fullAddress",
+      "programLevel",
+      "instituteName",
+      "schoolDiscipline",
+      "schoolObtaintedMarks",
+      "schoolTotalMarks",
+      "percentageOfMarks",
+      "secondaryProgramLevel",
+      "secondaryInstituteName",
+      "secondaryDiscipline",
+      "secondaryObtaintedMarks",
+      "secondaryTotalMarks",
+      "secondaryPercentageOfMarks",
+      "UniversityprogramLevel",
+      "UniversityinstituteName",
+      "UniversityschoolDiscipline",
+      "UniversityschoolObtaintedMarks",
+      "UniversityschoolTotalMarks",
+      "UniversitypercentageOfMarks",
+      "projectTitle",
+      "projectDescription",
+      "technologiesUsed",
+      "liveUrl",
+      "linkdinUrl",
+      "gitHubLink",
+    ];
+
+    const hasMissingFields = requiredFields.some(
+      (field) => !singleUserDetails[field]
+    );
 
     const status = !hasMissingFields;
 
