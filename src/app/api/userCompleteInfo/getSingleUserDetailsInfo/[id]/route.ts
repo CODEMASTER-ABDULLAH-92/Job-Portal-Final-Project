@@ -4,10 +4,10 @@ import { NextResponse } from "next/server";
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   await dbConnect();
-  const { id } = params;
+  const { id } = context.params;
 
   try {
     const singleUserDetails = await userDetailsModel.findOne({ userId: id });
