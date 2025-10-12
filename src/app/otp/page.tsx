@@ -1,13 +1,14 @@
 "use client";
+
+import React, { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { data } from "../assets/assets";
 
-const Otp = () => {
+function OtpContent() {
   const searchParams = useSearchParams();
-  const email = searchParams.get("email") || "user@example.com"; // ✅ fixed
+  const email = searchParams.get("email") || "user@example.com";
   const [otp, setOtp] = useState(Array(6).fill(""));
   const [timeLeft, setTimeLeft] = useState(300);
   const [loading, setLoading] = useState(false);
@@ -46,7 +47,9 @@ const Otp = () => {
 
       const data = await res.json();
       alert(data.success ? "✅ OTP verified!" : `❌ ${data.message}`);
-       window.location.href = `/new-password?email=${encodeURIComponent(email)}`;
+      if (data.success) {
+        window.location.href = `/new-password?email=${encodeURIComponent(email)}`;
+      }
     } catch (err) {
       alert("Server error. Try again.");
     } finally {
@@ -59,13 +62,21 @@ const Otp = () => {
   return (
     <div className="flex flex-col sm:flex-row h-screen w-full">
       <div className="w-full sm:w-1/2 h-60 sm:h-full bg-green-100 hidden sm:flex items-center justify-center">
-        <Image src={data.password} alt="Password Illustration" className="object-contain h-full w-full p-8" />
+        <Image
+          src={data.password}
+          alt="Password Illustration"
+          className="object-contain h-full w-full p-8"
+        />
       </div>
 
       <div className="w-full sm:w-1/2 flex items-center justify-center bg-white">
         <form onSubmit={handleSubmit} className="w-full max-w-md px-6 py-8 sm:px-8 sm:py-10">
           <Link href="/" className="flex items-center gap-2 mb-6">
-            <Image src={data.Icon} className="h-[30px] w-[30px] hover:rotate-180 duration-1000" alt="Logo" />
+            <Image
+              src={data.Icon}
+              className="h-[30px] w-[30px] hover:rotate-180 duration-1000"
+              alt="Logo"
+            />
             <span className="text-2xl font-bold text-gray-800">HireMate.</span>
           </Link>
 
@@ -109,6 +120,12 @@ const Otp = () => {
       </div>
     </div>
   );
-};
+}
 
-export default Otp;
+export default function OtpPage() {
+  return (
+    <Suspense fallback={<div className="text-center mt-10">Loading OTP Page...</div>}>
+      <OtpContent />
+    </Suspense>
+  );
+}
