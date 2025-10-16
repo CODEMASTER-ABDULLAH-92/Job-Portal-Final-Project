@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { data, phoneData } from "../assets/assets";
 import Link from "next/link";
-import { CircleCheckBig, CircleX } from "lucide-react";
+import { CircleCheckBig, CircleDashedIcon, CircleX } from "lucide-react";
 import Image from "next/image";
 import axios from "axios";
 import { useRouter } from "next/navigation";
@@ -15,7 +15,7 @@ const SignUp = () => {
   const [password, setPassword] = useState("");
   const [mobile, setMobile] = useState("");
   const router = useRouter();
-
+  const [loading, setLoading] = useState(false);
   // Password Validation
   const isLengthValid = password.length >= 8;
   const hasUppercase = /[A-Z]/.test(password);
@@ -26,7 +26,7 @@ const SignUp = () => {
 
   const onsubmitHandler = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    setLoading(true);
     if (!validPassword) {
       toast.error("Please meet all password requirements");
       return;
@@ -54,13 +54,15 @@ const SignUp = () => {
         setMobile("");
         localStorage.setItem("userId", response.data.User._id);
         localStorage.setItem("userName", response.data.User.userName);
-        
+
         toast.success(response.data.message);
         router.push("/");
       }
     } catch (error: any) {
       console.error("Error in Register:", error);
       toast.error(error.response?.data?.message || "Registration Error");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -238,14 +240,21 @@ const SignUp = () => {
           {/* Submit Button */}
           <button
             type="submit"
-            disabled={!validPassword}
+            disabled={!validPassword || loading}
             className={`${
-              validPassword
-                ? "w-full py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-300"
-                : "w-full py-2 bg-gray-400 text-white font-semibold rounded-lg transition duration-300 cursor-not-allowed"
+              validPassword && !loading
+                ? "w-full py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-300 flex items-center justify-center gap-2"
+                : "w-full py-2 bg-gray-400 text-white font-semibold rounded-lg transition duration-300 cursor-not-allowed flex items-center justify-center gap-2"
             }`}
           >
-            Sign Up
+            {loading ? (
+              <>
+                <CircleDashedIcon size={18} className="animate-spin" />
+                Logging in...
+              </>
+            ) : (
+              "Login"
+            )}
           </button>
         </form>
       </div>

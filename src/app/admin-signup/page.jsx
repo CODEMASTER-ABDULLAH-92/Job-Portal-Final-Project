@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { data, phoneData } from "../assets/assets";
 import Link from "next/link";
-import { CircleCheckBig, CircleX } from "lucide-react";
+import { CircleCheckBig, CircleDashedIcon, CircleX } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import axios from "axios";
@@ -14,6 +14,8 @@ const Page = () => {
   const [password, setPassword] = useState("");
   const [mobile, setMobile] = useState("");
   const [countryCode, setCountryCode] = useState("+61");
+  const [loading, setLoading] = useState(false);
+  
   const router = useRouter();
 
   // Password Validation
@@ -26,6 +28,7 @@ const Page = () => {
 
   const onsubmitHandler = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const response = await axios.post(
         "/api/auth/admin/register",
@@ -49,6 +52,9 @@ const Page = () => {
     } catch (error) {
       console.error("Error in admin register", error);
       toast.error("Error in registration");
+    }
+    finally{
+      setLoading(false);
     }
   };
 
@@ -226,13 +232,21 @@ const Page = () => {
           <button
             type="submit"
             disabled={!validPassword}
-            className={`w-full py-2 font-semibold rounded-lg transition duration-300 ${
+            className={`w-full py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-300 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed ${
               validPassword
                 ? "bg-blue-600 text-white hover:bg-blue-700"
                 : "bg-gray-400 text-white cursor-not-allowed"
             }`}
           >
-            Sign Up
+  {loading ? (
+              <>
+                <CircleDashedIcon size={18} className="animate-spin" />
+                SignUp...
+              </>
+            ) : (
+              "Sign Up"
+            )}
+
           </button>
         </form>
       </div>

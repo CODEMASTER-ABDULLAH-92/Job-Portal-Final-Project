@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useRef, useEffect, useContext } from "react";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, CircleDashedIcon } from "lucide-react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import JobCard from "@/src/app/Components/JobCard";
@@ -167,9 +167,9 @@ const JobsSections = () => {
   }, [selectedJobTypes, selectedLocations, selectedCategories]);
 
   return (
-    <div className=" max-w-6xl">
+    <div className="mx-10">
       <Navbar />
-      <div className="flex mx-5 justify-between gap-5 mt-5">
+      <div className="flex  justify-between gap-5 mt-5">
         {/* Filters */}
         <div className="md:min-w-[23%] min-w-[30%] sm:block hidden bg-white py-3 px-3 rounded-lg h-full shadow-md">
           {/* Job Type */}
@@ -262,8 +262,9 @@ const JobsSections = () => {
                 />
               ))
             ) : (
-              <div className="col-span-2 text-center py-10">
-                <p className="text-xl text-gray-500">No jobs found matching your filters.</p>
+              <div className="col-span-2 text-center py-10 flex  justify-center items-center">
+                <p className="text-xl text-gray-500 gap-2">Loading</p>
+                <CircleDashedIcon size={18} className="animate-spin"/>
               </div>
             )}
           </div>

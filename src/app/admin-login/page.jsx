@@ -6,14 +6,17 @@ import Image from "next/image";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import { CircleDashedIcon } from "lucide-react";
 
 const Page = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const onsubmitHandler = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     try {
       const response = await axios.post(
@@ -33,6 +36,8 @@ const Page = () => {
     } catch (error) {
       console.error("Error logging in admin:", error);
       toast.error("Login failed. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -60,10 +65,11 @@ const Page = () => {
               className="h-[20px] w-[20px] hover:rotate-180 duration-1000"
               alt="Logo"
             />
-              <p className="text-xl">HireMate.</p> <p className="text-[12px] absolute left-28 bottom-4">Admin <span className="text-green-500"> portal</span></p>
+            <p className="text-xl">HireMate.</p>{" "}
+            <p className="text-[12px] absolute left-28 bottom-4">
+              Admin <span className="text-green-500"> portal</span>
+            </p>
           </Link>
-
-
 
           {/* Heading */}
           <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-6">
@@ -112,17 +118,28 @@ const Page = () => {
 
           {/* Links */}
           <div className="flex justify-between text-sm mb-6">
-            <Link href="/admin-signup" className="text-blue-600 hover:underline">
-              Don’t have an account? Sign Up
+            <Link
+              href="/admin-signup"
+              className="text-blue-600 hover:underline"
+            >
+              Don't have an account? Sign Up
             </Link>
           </div>
 
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-300"
+            disabled={loading}
+            className="w-full py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-300 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
           >
-            Login
+            {loading ? (
+              <>
+                <CircleDashedIcon size={18} className="animate-spin" />
+                Logging in...
+              </>
+            ) : (
+              "Login"
+            )}
           </button>
         </form>
       </div>

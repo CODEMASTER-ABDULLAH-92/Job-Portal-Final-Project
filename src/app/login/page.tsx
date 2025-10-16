@@ -6,15 +6,16 @@ import Image from "next/image";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
-
+import { CircleDashedIcon } from "lucide-react";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const onsubmitHandler = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    setLoading(true);
     if (!email || !password) {
       toast.error("Please enter both email and password");
       return;
@@ -39,7 +40,12 @@ const Login = () => {
       }
     } catch (error: any) {
       console.error("Error in Login:", error);
-      toast.error(error?.response?.data?.message || "Something went wrong. Please try again.");
+      toast.error(
+        error?.response?.data?.message ||
+          "Something went wrong. Please try again."
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -117,7 +123,10 @@ const Login = () => {
 
           {/* Links */}
           <div className="flex justify-between text-sm mb-6">
-            <Link href="/email_page_for_reset_password" className="text-blue-600 hover:underline">
+            <Link
+              href="/email_page_for_reset_password"
+              className="text-blue-600 hover:underline"
+            >
               Forgot Password?
             </Link>
             <Link href="/signUp" className="text-blue-600 hover:underline">
@@ -128,9 +137,17 @@ const Login = () => {
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-300"
+            disabled={loading}
+            className="w-full py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-300 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
           >
-            Login
+            {loading ? (
+              <>
+                <CircleDashedIcon size={18} className="animate-spin" />
+                Logging in...
+              </>
+            ) : (
+              "Login"
+            )}
           </button>
         </form>
       </div>
