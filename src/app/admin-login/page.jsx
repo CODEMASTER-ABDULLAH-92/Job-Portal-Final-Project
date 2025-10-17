@@ -6,7 +6,7 @@ import Image from "next/image";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import { CircleDashedIcon } from "lucide-react";
+import { ArrowLeft, CircleDashedIcon } from "lucide-react";
 
 const Page = () => {
   const [email, setEmail] = useState("");
@@ -54,6 +54,7 @@ const Page = () => {
 
       {/* Right Section - Form */}
       <div className="w-full sm:w-1/2 relative flex h-full items-center justify-center bg-white">
+      <Link href={"/"} className="absolute z-20 top-5 mb-2 left-7 flex"> <ArrowLeft/>Back</Link>
         <form
           onSubmit={onsubmitHandler}
           className="w-full max-w-md relative px-6 py-8 sm:px-8 sm:py-10"

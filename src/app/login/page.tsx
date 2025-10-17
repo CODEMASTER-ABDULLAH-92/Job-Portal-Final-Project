@@ -6,7 +6,7 @@ import Image from "next/image";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import { CircleDashedIcon } from "lucide-react";
+import { ArrowLeft, CircleDashedIcon } from "lucide-react";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -50,9 +50,9 @@ const Login = () => {
   };
 
   return (
-    <div className="flex flex-col sm:flex-row h-screen w-full">
+    <div className="flex relative flex-col sm:flex-row h-screen w-full">
       {/* Left Section - Image */}
-      <div className="w-full sm:w-1/2 h-60 sm:h-full bg-green-100 hidden sm:flex items-center justify-center">
+      <div className="w-full sm:w-1/2 h-60  sm:h-full bg-green-100 hidden sm:flex items-center justify-center">
         <Image
           src={data.login}
           alt="Login Illustration"
@@ -61,7 +61,8 @@ const Login = () => {
       </div>
 
       {/* Right Section - Form */}
-      <div className="w-full sm:w-1/2 flex h-full items-center justify-center bg-white">
+      <div className="w-full sm:w-1/2  flex h-full items-center justify-center bg-white">
+        <Link href={"/"} className="absolute z-20 top-5 mb-2 left-7 flex"> <ArrowLeft/>Back</Link>
         <form
           onSubmit={onsubmitHandler}
           className="w-full max-w-md px-6 py-8 sm:px-8 sm:py-10"

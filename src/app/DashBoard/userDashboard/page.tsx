@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { FiLogOut } from "react-icons/fi";
@@ -33,13 +32,17 @@ const Page = () => {
     url,
     totalApplications,
     statusDocs,
+    count
   } = useContext(AppContext);
 
   const [totalPer, setTotalper] = useState(0);
   const [applications, setApplications] = useState<any[]>([]);
   const [activities, setActivities] = useState<any[]>([]);
+  const [jobs, setJobs] = useState<any[]>([]); // New state for jobs
   const [loading, setLoading] = useState(true);
+  const [jobsLoading, setJobsLoading] = useState(true); // Separate loading for jobs
 
+  
   // 🔹 Check auth & set user
   useEffect(() => {
     const token = Cookies.get("userToken");
@@ -94,11 +97,43 @@ const Page = () => {
     if (userId) fetchData();
   }, [userId, url]);
 
+  // 🔹 Fetch jobs from API
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        setJobsLoading(true);
+        const token = Cookies.get("userToken");
+        if (!token) return;
+
+        const response = await axios.get(`/api/Job/getAllJobs`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        // Get first 6 jobs and sort them (you can adjust the sorting logic)
+        const firstSixJobs = response.data?.jobs?.slice(0, 6) || [];
+        
+        // Sort by date (assuming there's a createdAt field) or any other field
+        const sortedJobs = firstSixJobs.sort((a: any, b: any) => 
+          new Date(b.createdAt || b.updatedAt).getTime() - new Date(a.createdAt || a.updatedAt).getTime()
+        );
+
+        setJobs(sortedJobs);
+      } catch (err: any) {
+        console.error("Failed to fetch jobs:", err);
+        toast.error(err.response?.data?.message || "Failed to fetch jobs");
+      } finally {
+        setJobsLoading(false);
+      }
+    };
+
+    fetchJobs();
+  }, [url]);
+
   // 🔹 Dashboard stats
   const stats = [
     {
       title: "Total Applications",
-      value: applications.length || totalApplications,
+      value: count,
       icon: <FileText size={20} className="text-blue-600" />,
       bg: "bg-blue-100",
     },
@@ -124,18 +159,64 @@ const Page = () => {
     },
   ];
 
-  const handleLogout = async () => {
-    try {
-      const response = await axios.post(`${url}/api/user/logout`);
-      if (response.data.success) {
-        Cookies.remove("userToken");
-        localStorage.clear();
-        toast.success("Logged out successfully");
-        router.push("/");
-      }
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Logout failed");
+const handleLogout = async () => {
+  try {
+    const token = Cookies.get("userToken");
+    
+    if (!token) {
+      // If no token, just clear local data and redirect
+      Cookies.remove("userToken");
+      localStorage.clear();
+      toast.success("Logged out successfully");
+      router.push("/");
+      return;
     }
+
+    const response = await axios.post(`/api/auth/user/logout`, {}, {
+      headers: { 
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (response.data.success) {
+      Cookies.remove("userToken");
+      localStorage.clear();
+      toast.success("Logged out successfully");
+      router.push("/");
+    } else {
+      throw new Error(response.data.message || "Logout failed");
+    }
+  } catch (error: any) {
+    console.error("Logout error:", error);
+    
+    // Even if the API call fails, clear local data
+    Cookies.remove("userToken");
+    localStorage.clear();
+    
+    // Show appropriate error message
+    if (error.response?.status === 401) {
+      toast.info("Session expired. You have been logged out.");
+    } else if (error.response?.data?.message) {
+      toast.error(error.response.data.message);
+    } else if (error.message) {
+      toast.error(error.message);
+    } else {
+      toast.error("Logout failed, but local data cleared");
+    }
+    
+    router.push("/");
+  }
+};
+
+  // Format date for display
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
   };
 
   return (
@@ -242,45 +323,72 @@ const Page = () => {
             ))}
           </div>
 
-          {/* Recent Applications */}
+          {/* Recent Jobs */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200">
               <div className="bg-[#B9FF66] px-6 py-4">
                 <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-3">
                   <Briefcase size={24} />
-                  Recent Applications
+                  Recent Jobs
                 </h2>
               </div>
               <div className="p-6">
-                {loading ? (
-                  <p className="text-gray-500">Loading applications...</p>
-                ) : applications.length === 0 ? (
-                  <p className="text-gray-500">No applications found.</p>
+                {jobsLoading ? (
+                  <p className="text-gray-500">Loading jobs...</p>
+                ) : jobs.length === 0 ? (
+                  <p className="text-gray-500">No jobs found.</p>
                 ) : (
-                  applications.map((app) => (
-                    <div
-                      key={app.id}
-                      className="flex justify-between items-center py-3 border-b border-gray-100"
-                    >
-                      <div>
-                        <p className="font-medium text-gray-800">
-                          {app.jobTitle} - {app.company}
-                        </p>
-                        <p className="text-sm text-gray-500">{app.date}</p>
-                      </div>
-                      <span
-                        className={`px-3 py-1 rounded-full text-sm ${
-                          app.status?.includes("Interview")
-                            ? "bg-green-100 text-green-700"
-                            : app.status === "Rejected"
-                            ? "bg-red-100 text-red-700"
-                            : "bg-yellow-100 text-yellow-700"
-                        }`}
+                  <div className="space-y-4">
+                    {jobs.map((job) => (
+                      <Link href={`/details/${job._id}`}
+                        key={job.id || job._id}
+                        className="flex justify-between items-center py-3 border-b border-gray-100"
                       >
-                        {app.status}
-                      </span>
-                    </div>
-                  ))
+                        <div className="flex-1">
+                          <p className="font-medium text-gray-800">
+                            {job.jobName}
+                          </p>
+                          <div className="flex flex-wrap gap-2 mt-1">
+                  
+                            {job.location && (
+                              <>
+                                <span className="text-gray-300">•</span>
+                                <span className="text-sm text-gray-600">
+                                  {job.location}
+                                </span>
+                              </>
+                            )}
+                            {job.type && (
+                              <>
+                                <span className="text-gray-300">•</span>
+                                <span className="text-sm text-gray-600">
+                                  {job.jobType}
+                                </span>
+                              </>
+                            )}
+                          </div>
+                          {job.updatedAt && (
+                            <p className="text-xs text-gray-500 mt-1">
+                              Posted: {formatDate(job.updatedAt)}
+                            </p>
+                          )}
+                        </div>
+                        <span
+                          className={`px-3 py-1 rounded-full text-sm font-medium ${
+                            job.jobType === "Full-time"
+                              ? "bg-blue-100 text-blue-700"
+                              : job.jobType === "Part-time"
+                              ? "bg-green-100 text-green-700"
+                              : job.jobType === "Contract"
+                              ? "bg-purple-100 text-purple-700"
+                              : "bg-gray-100 text-gray-700"
+                          }`}
+                        >
+                          {job.jobType || "Full-time"}
+                        </span>
+                      </Link>
+                    ))}
+                  </div>
                 )}
               </div>
             </div>

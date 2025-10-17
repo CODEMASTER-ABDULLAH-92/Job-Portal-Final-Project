@@ -2,10 +2,13 @@
 
 import React from "react";
 import Image from "next/image";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
 const Contact = () => {
   return (
     <section className="min-h-screen flex items-center justify-center px-6 py-16 bg-gradient-to-br from-gray-50 to-gray-100">
+      <Link href={"/"} className="absolute z-20 top-5 mb-2 left-20 flex"> <ArrowLeft/>Back</Link>
       <div className="max-w-6xl w-full grid md:grid-cols-2 gap-10 bg-white/70 backdrop-blur-lg p-10 rounded-3xl shadow-xl border border-gray-200">
         
         {/* Left Side - Form */}

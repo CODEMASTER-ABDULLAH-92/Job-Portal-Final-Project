@@ -71,6 +71,7 @@ const Page = () => {
 
       {/* Right Section - Form */}
       <div className="w-full relative sm:w-1/2 flex h-full items-center justify-center bg-white">
+        <Link href={"/"} className="absolute z-20 top-5 mb-2 left-7 flex"> <ArrowLeft/>Back</Link>
         <form
           onSubmit={onsubmitHandler}
           className="w-full max-w-md px-6 py-8 sm:px-8 sm:py-10"

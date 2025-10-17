@@ -7,6 +7,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { 
+  ArrowLeft,
   Clock
 } from "lucide-react";
 
@@ -151,7 +152,7 @@ const Page = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-green-50" ref={sectionRef}>
-      
+      <Link href={"/"} className="absolute z-20 top-5 mb-2 left-20 flex"> <ArrowLeft/>Back</Link>
       {/* Hero Section */}
       <section className="py-20 px-6 max-w-6xl mx-auto">
         <div className="text-center mb-16">

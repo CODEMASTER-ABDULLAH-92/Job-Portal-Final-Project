@@ -24,30 +24,47 @@ export const AppContextProvider = (props) => {
     if (admToken) setAdminToken(true);
 
     fetchAllJobs(); // call jobs fetching
-   adminId = localStorage.getItem("adminId");
-   console.log("use",userProfile);
+    adminId = localStorage.getItem("adminId");
+    console.log("use", userProfile);
   }, []);
 
   useEffect(() => {
-  console.log("Context userProfile updated:", userProfile);
-}, [userProfile]);
-
+    console.log("Context userProfile updated:", userProfile);
+  }, [userProfile]);
   const fetchAllJobs = async () => {
     try {
-      const response = await axios.get("/api/Job/getAllJobs", { withCredentials: true });
+      const response = await axios.get("/api/Job/getAllJobs", {
+        withCredentials: true,
+      });
 
       if (response.data.success) {
         setJobData(response.data.jobs);
         toast.success("Fetched all jobs");
         console.log(response.data.jobs);
       }
+      for (let i = 0; i < jobData.length; i++) {
+        count = count + 1;
+      }
     } catch (error) {
       console.error("Error in job fetching:", error);
       toast.error("Error in job fetching");
     }
   };
+  let count = 0;
+  for (let i = 0; i < jobData.length; i++) {
+    count = count + 1;
+  }
+  console.log(count);
 
-  const value = { jobData, userProfile, token, adminToken, adminId,setUserProfile};
+  const value = {
+    jobData,
+    userProfile,
+    token,
+    adminToken,
+    adminId,
+    count,
+    setUserProfile,
+  };
 
   return (
     <AppContext.Provider value={value}>{props.children}</AppContext.Provider>
