@@ -4,13 +4,14 @@ import Cookies from "js-cookie";
 import axios from "axios";
 import toast from "react-hot-toast";
 
-export const AppContext = createContext();
 
+export const AppContext = createContext();
 export const AppContextProvider = (props) => {
   const [token, setToken] = useState(false);
   const [adminToken, setAdminToken] = useState(false);
   const [userProfile, setUserProfile] = useState(null);
   const [jobData, setJobData] = useState([]);
+  const [savedJob, setSavedJob] = useState([]);
   let adminId;
   // ✅ Check cookies inside useEffect
   useEffect(() => {
@@ -56,14 +57,42 @@ export const AppContextProvider = (props) => {
   }
   console.log(count);
 
+
+
+  const handleSaveJob = async () => {
+  try {
+    // Assume you have stored the logged-in userId somewhere (e.g. context or localStorage)
+    const userId = localStorage.getItem("userId"); 
+    if (!userId) return alert("You must be logged in to save jobs.");
+
+    const response = await axios.post("/api/Job/savedJob", {
+      userId,
+    });
+
+    if (response.status === 200) {
+      toast.success("Job saved successfully!")
+      setSavedJob(response.data.savedJobs); 
+    }
+  } catch (error) {
+    console.error("Error saving job:", error);
+    toast.error("Failed to save job. Please try again.")
+  }
+  };
+
+  useEffect(()=>{
+    handleSaveJob()
+  },[])
+  
   const value = {
     jobData,
+    handleSaveJob,
     userProfile,
     token,
     adminToken,
     adminId,
     count,
     setUserProfile,
+    savedJob
   };
 
   return (

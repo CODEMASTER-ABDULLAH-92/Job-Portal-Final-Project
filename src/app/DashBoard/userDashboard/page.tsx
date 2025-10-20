@@ -10,6 +10,9 @@ import {
   Bell,
   Search,
   Briefcase,
+  ChevronLeft,
+  ChevronRight,
+  Bookmark,
 } from "lucide-react";
 import Cookies from "js-cookie";
 import { toast } from "react-toastify";
@@ -32,17 +35,22 @@ const Page = () => {
     url,
     totalApplications,
     statusDocs,
-    count
+    count,
+    savedJob
   } = useContext(AppContext);
 
   const [totalPer, setTotalper] = useState(0);
   const [applications, setApplications] = useState<any[]>([]);
   const [activities, setActivities] = useState<any[]>([]);
-  const [jobs, setJobs] = useState<any[]>([]); // New state for jobs
+  const [jobs, setJobs] = useState<any[]>([]);
+  const [savedJobs, setSavedJobs] = useState<any[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
-  const [jobsLoading, setJobsLoading] = useState(true); // Separate loading for jobs
+  const [jobsLoading, setJobsLoading] = useState(true);
+  const [savedJobsLoading, setSavedJobsLoading] = useState(false);
 
-  
+  const JOBS_PER_PAGE = 6;
+
   // 🔹 Check auth & set user
   useEffect(() => {
     const token = Cookies.get("userToken");
@@ -52,10 +60,37 @@ const Page = () => {
       return;
     }
 
-    setUserId(localStorage.getItem("userId"));
+    const storedUserId = localStorage.getItem("userId");
+    setUserId(storedUserId);
     setUserName(localStorage.getItem("userName") || "");
     setUserEmail(localStorage.getItem("email") || "");
+    const savedJob = JSON.parse(localStorage.getItem("savedJob")) || [];
+    console.log(savedJob);
+
+    // Load saved jobs from localStorage
+    if (storedUserId) {
+      loadSavedJobs(storedUserId);
+    }
   }, [router]);
+
+  // 🔹 Load saved jobs from localStorage
+  const loadSavedJobs = (userId: string) => {
+    try {
+      setSavedJobsLoading(true);
+      const savedJobsData = localStorage.getItem(`savedJobs_${userId}`);
+      if (savedJobsData) {
+        const parsedSavedJobs = JSON.parse(savedJobsData);
+        setSavedJobs(Array.isArray(parsedSavedJobs) ? parsedSavedJobs : []);
+      } else {
+        setSavedJobs([]);
+      }
+    } catch (error) {
+      console.error("Error loading saved jobs:", error);
+      setSavedJobs([]);
+    } finally {
+      setSavedJobsLoading(false);
+    }
+  };
 
   // 🔹 Profile % calculation
   useEffect(() => {
@@ -67,35 +102,6 @@ const Page = () => {
     if (statusDocs === "Completed") completed++;
     setTotalper((completed / total) * 100);
   }, [status, statusAddress, statusEdu, statusDocs]);
-
-  // 🔹 Fetch applications & activities
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const token = Cookies.get("userToken");
-        if (!token) return;
-
-        const [appsRes, actRes] = await Promise.all([
-          axios.get(`${url}/api/applications/${userId}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          axios.get(`${url}/api/activities/${userId}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-        ]);
-
-        setApplications(appsRes.data?.applications || []);
-        setActivities(actRes.data?.activities || []);
-      } catch (err: any) {
-        toast.error(err.response?.data?.message || "Failed to fetch data");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (userId) fetchData();
-  }, [userId, url]);
 
   // 🔹 Fetch jobs from API
   useEffect(() => {
@@ -109,12 +115,11 @@ const Page = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        // Get first 6 jobs and sort them (you can adjust the sorting logic)
         const firstSixJobs = response.data?.jobs?.slice(0, 6) || [];
-        
-        // Sort by date (assuming there's a createdAt field) or any other field
-        const sortedJobs = firstSixJobs.sort((a: any, b: any) => 
-          new Date(b.createdAt || b.updatedAt).getTime() - new Date(a.createdAt || a.updatedAt).getTime()
+        const sortedJobs = firstSixJobs.sort(
+          (a: any, b: any) =>
+            new Date(b.createdAt || b.updatedAt).getTime() -
+            new Date(a.createdAt || a.updatedAt).getTime()
         );
 
         setJobs(sortedJobs);
@@ -146,9 +151,9 @@ const Page = () => {
       bg: "bg-green-100",
     },
     {
-      title: "Notifications",
-      value: activities.length,
-      icon: <Bell size={20} className="text-yellow-600" />,
+      title: "Saved Jobs",
+      value: savedJob.length,
+      icon: <Bookmark size={20} className="text-yellow-600" />,
       bg: "bg-yellow-100",
     },
     {
@@ -159,64 +164,89 @@ const Page = () => {
     },
   ];
 
-const handleLogout = async () => {
-  try {
-    const token = Cookies.get("userToken");
-    
-    if (!token) {
-      // If no token, just clear local data and redirect
-      Cookies.remove("userToken");
-      localStorage.clear();
-      toast.success("Logged out successfully");
-      router.push("/");
-      return;
-    }
+  // 🔹 Pagination logic for saved jobs
+  const totalPages = Math.ceil(savedJob.length / JOBS_PER_PAGE);
+  const startIndex = (currentPage - 1) * JOBS_PER_PAGE;
+  const currentSavedJobs = savedJob.slice(
+    startIndex,
+    startIndex + JOBS_PER_PAGE
+  );
 
-    const response = await axios.post(`/api/auth/user/logout`, {}, {
-      headers: { 
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json'
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      const token = Cookies.get("userToken");
+
+      if (!token) {
+        Cookies.remove("userToken");
+        localStorage.clear();
+        toast.success("Logged out successfully");
+        router.push("/");
+        return;
       }
-    });
 
-    if (response.data.success) {
+      const response = await axios.post(
+        `/api/auth/user/logout`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.data.success) {
+        Cookies.remove("userToken");
+        localStorage.clear();
+        toast.success("Logged out successfully");
+        router.push("/");
+      } else {
+        throw new Error(response.data.message || "Logout failed");
+      }
+    } catch (error: any) {
+      console.error("Logout error:", error);
       Cookies.remove("userToken");
       localStorage.clear();
-      toast.success("Logged out successfully");
+
+      if (error.response?.status === 401) {
+        toast.info("Session expired. You have been logged out.");
+      } else if (error.response?.data?.message) {
+        toast.error(error.response.data.message);
+      } else if (error.message) {
+        toast.error(error.message);
+      } else {
+        toast.error("Logout failed, but local data cleared");
+      }
+
       router.push("/");
-    } else {
-      throw new Error(response.data.message || "Logout failed");
     }
-  } catch (error: any) {
-    console.error("Logout error:", error);
-    
-    // Even if the API call fails, clear local data
-    Cookies.remove("userToken");
-    localStorage.clear();
-    
-    // Show appropriate error message
-    if (error.response?.status === 401) {
-      toast.info("Session expired. You have been logged out.");
-    } else if (error.response?.data?.message) {
-      toast.error(error.response.data.message);
-    } else if (error.message) {
-      toast.error(error.message);
-    } else {
-      toast.error("Logout failed, but local data cleared");
-    }
-    
-    router.push("/");
-  }
-};
+  };
 
   // Format date for display
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
+    if (!dateString) return "Recently";
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+    } catch {
+      return "Recently";
+    }
   };
 
   return (
@@ -323,8 +353,8 @@ const handleLogout = async () => {
             ))}
           </div>
 
-          {/* Recent Jobs */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Recent Jobs */}
             <div className="lg:col-span-2 bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200">
               <div className="bg-[#B9FF66] px-6 py-4">
                 <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-3">
@@ -340,16 +370,16 @@ const handleLogout = async () => {
                 ) : (
                   <div className="space-y-4">
                     {jobs.map((job) => (
-                      <Link href={`/details/${job._id}`}
+                      <Link
+                        href={`/details/${job._id}`}
                         key={job.id || job._id}
-                        className="flex justify-between items-center py-3 border-b border-gray-100"
+                        className="flex justify-between items-center py-3 border-b border-gray-100 hover:bg-gray-50 rounded-lg transition-colors"
                       >
                         <div className="flex-1">
                           <p className="font-medium text-gray-800">
                             {job.jobName}
                           </p>
                           <div className="flex flex-wrap gap-2 mt-1">
-                  
                             {job.location && (
                               <>
                                 <span className="text-gray-300">•</span>
@@ -393,35 +423,98 @@ const handleLogout = async () => {
               </div>
             </div>
 
-            {/* Recent Activity */}
+            {/* Saved Jobs Section */}
             <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200">
               <div className="bg-[#B9FF66] px-6 py-4">
                 <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-3">
-                  <Bell size={24} />
-                  Recent Activity
+                  <Bookmark size={24} />
+                  Saved Jobs
                 </h2>
               </div>
-              <div className="p-6 space-y-4">
-                {loading ? (
-                  <p className="text-gray-500">Loading activities...</p>
-                ) : activities.length === 0 ? (
-                  <p className="text-gray-500">No recent activity.</p>
+              <div className="p-6">
+                {savedJobsLoading ? (
+                  <p className="text-gray-500">Loading saved jobs...</p>
+                ) : savedJob.length === 0 ? (
+                  <p className="text-gray-500">No saved jobs yet.</p>
                 ) : (
-                  activities.map((activity) => (
-                    <div key={activity.id} className="flex gap-3">
-                      <div className="flex-shrink-0 mt-1">
-                        <div className="h-8 w-8 rounded-full bg-[#B9FF66]/20 flex items-center justify-center">
-                          {activity.icon || "🔔"}
-                        </div>
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-800">
-                          {activity.title}
-                        </p>
-                        <p className="text-sm text-gray-500">{activity.time}</p>
-                      </div>
+                  <>
+                    <div className="space-y-4 mb-4">
+                      {currentSavedJobs.map((job, index) => (
+                        <Link
+                          href={`/details/${job._id || job.id}`}
+                          key={job._id || job.id || index}
+                          className="block p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                        >
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1">
+                              <p className="font-medium text-gray-800">
+                                {job.jobName || job.title || "Untitled Job"}
+                              </p>
+                              <div className="flex items-center gap-2 mt-1">
+                                {job.company && (
+                                  <span className="text-sm text-gray-600">
+                                    {job.company}
+                                  </span>
+                                )}
+                                {job.location && (
+                                  <>
+                                    <span className="text-gray-300">•</span>
+                                    <span className="text-sm text-gray-600">
+                                      {job.location}
+                                    </span>
+                                  </>
+                                )}
+                              </div>
+                              <p className="text-xs text-gray-500 mt-1">
+                                Saved:{" "}
+                                {formatDate(job.savedAt || job.updatedAt)}
+                              </p>
+                            </div>
+                            <Bookmark
+                              size={16}
+                              className="text-[#B9FF66] flex-shrink-0"
+                              fill="#B9FF66"
+                            />
+                          </div>
+                        </Link>
+                      ))}
                     </div>
-                  ))
+
+                    {/* Pagination */}
+                    {totalPages > 1 && (
+                      <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-200">
+                        <button
+                          onClick={handlePrevPage}
+                          disabled={currentPage === 1}
+                          className={`flex items-center gap-1 px-3 py-1 rounded-lg text-sm ${
+                            currentPage === 1
+                              ? "text-gray-400 cursor-not-allowed"
+                              : "text-gray-700 hover:bg-gray-100"
+                          }`}
+                        >
+                          <ChevronLeft size={16} />
+                          Previous
+                        </button>
+
+                        <span className="text-sm text-gray-600">
+                          Page {currentPage} of {totalPages}
+                        </span>
+
+                        <button
+                          onClick={handleNextPage}
+                          disabled={currentPage === totalPages}
+                          className={`flex items-center gap-1 px-3 py-1 rounded-lg text-sm ${
+                            currentPage === totalPages
+                              ? "text-gray-400 cursor-not-allowed"
+                              : "text-gray-700 hover:bg-gray-100"
+                          }`}
+                        >
+                          Next
+                          <ChevronRight size={16} />
+                        </button>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </div>

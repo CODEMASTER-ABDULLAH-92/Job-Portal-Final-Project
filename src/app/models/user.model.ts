@@ -11,6 +11,9 @@ export interface User extends Document {
   isVerified?: boolean;
   resetPasswordToken?: string;
   resetPasswordExpiry?: Date;
+
+  // 🆕 Job relationships
+  savedJobs?: mongoose.Types.ObjectId[]; 
 }
 
 const userSchema: Schema<User> = new Schema(
@@ -42,22 +45,23 @@ const userSchema: Schema<User> = new Schema(
       required: [true, "Country code is required"],
       trim: true,
     },
-    otp: {
-      type: String,
-    },
-    otpExpiry: {
-      type: Date,
-    },
+    otp: String,
+    otpExpiry: Date,
     isVerified: {
       type: Boolean,
       default: false,
     },
-    resetPasswordToken: {
-      type: String,
-    },
-    resetPasswordExpiry: {
-      type: Date,
-    },
+    resetPasswordToken: String,
+    resetPasswordExpiry: Date,
+
+    // 🆕 Array of Job ObjectIds
+    savedJobs: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Job",
+      },
+    ],
+
   },
   { timestamps: true }
 );

@@ -5,12 +5,11 @@ import { useParams } from "next/navigation"; // ✅ Correct import for Next.js
 import SimilarJobs from "@/src/app/Components/SimilarJobs";
 import JobSectionFooter from "@/src/app/Components/JObSectionFooter"; // ✅ fixed typo in import name
 import Link from "next/link"; // ✅ Correct import
-
 const JobDetails = () => {
   const { jobData } = useContext(AppContext);
   const [data, setData] = useState(null);
   const [similar, setSimilar] = useState([]);
-
+  const {handleSaveJob} = useContext(AppContext)
   // ✅ Next.js params
   const params = useParams();
   const id = params?.id; // extract job id
@@ -20,7 +19,6 @@ const JobDetails = () => {
 
     const currentJob = jobData.find((item) => item._id === id);
     setData(currentJob);
-
     if (currentJob) {
       const similarJobs = jobData.filter(
         (item) =>
@@ -70,7 +68,7 @@ const JobDetails = () => {
         {/* Right Section (Buttons) */}
         <div className="hidden sm:flex flex-col items-end gap-3 sm:gap-4">
           <div className="flex gap-4 sm:gap-6">
-            <button className="px-7 py-2.5 rounded-md bg-green-500 hover:bg-green-600 text-white transition-colors duration-200 shadow-sm">
+            <button onClick={handleSaveJob} className="px-7 py-2.5 rounded-md bg-green-500 hover:bg-green-600 text-white transition-colors duration-200 shadow-sm">
               Save
             </button>
             <button

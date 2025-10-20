@@ -2,12 +2,11 @@
 import React, { useState } from "react";
 import { data, phoneData } from "../assets/assets";
 import Link from "next/link";
-import { CircleCheckBig, CircleDashedIcon, CircleX } from "lucide-react";
+import { ArrowLeft, CircleCheckBig, CircleDashedIcon, CircleX } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import toast from "react-hot-toast";
-
 const Page = () => {
   const [userName, setUserName] = useState("");
   const [email, setEmail] = useState("");
